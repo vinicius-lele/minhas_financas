@@ -1,0 +1,68 @@
+### Listar profiles
+GET http://localhost:3333/profiles
+
+###
+
+### Criar profile
+POST http://localhost:3333/profiles
+Content-Type: application/json
+
+{
+  "name": "pong"
+}
+
+###
+
+### Deletar profile
+DELETE http://localhost:3333/profiles/6
+
+--------------------------------------------------------------------
+
+### Criar categoria
+POST http://localhost:3333/categories
+Content-Type: application/json
+
+{
+  "name": "Alimentação",
+  "emoji": "🍔",
+  "type": "EXPENSE"
+}
+
+###
+
+### Listar todas
+GET http://localhost:3333/categories
+
+###
+
+### Listar só despesas
+GET http://localhost:3333/categories?type=EXPENSE
+
+
+### Criar transação
+POST http://localhost:3333/transactions
+Content-Type: application/json
+
+{
+  "profileId": 1,
+  "categoryId": 1,
+  "amount": 541,
+  "type": "EXPENSE",
+  "date": "2026-01-15",
+  "description": "Mercado"
+}
+
+###
+
+### Listar transações
+GET http://localhost:3333/transactions?profileId=1&start=2026-01-14&end=2026-01-16
+
+------------------------------------------------------
+
+### Resumo geral
+GET http://localhost:3333/summary?profileId=1
+
+###
+
+### Totais por categoria
+GET http://localhost:3333/summary/categories?profileId=1
