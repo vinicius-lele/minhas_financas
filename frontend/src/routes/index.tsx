@@ -3,6 +3,7 @@ import { DefaultLayout } from "../layouts/DefaultLayout";
 import { Dashboard } from "../pages/Dashboard";
 import { Transactions } from "../pages/Transactions";
 import { Categories } from "../pages/Categories";
+import { PurchaseGoals } from "../pages/PurchaseGoals";
 
 export const router = createBrowserRouter([
   {
@@ -11,7 +12,8 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/transactions", element: <Transactions /> },
-      { path: "/categories", element: <Categories /> }
+      { path: "/categories", element: <Categories /> },
+      { path: "/purchase-goals", element: <PurchaseGoals /> }
     ]
   }
 ]);

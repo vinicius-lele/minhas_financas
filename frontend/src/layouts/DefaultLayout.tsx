@@ -8,6 +8,7 @@ import {
   UserOutlined,
   MenuOutlined,
   WalletOutlined,
+  GiftOutlined,
 } from "@ant-design/icons";
 import { ProfileSelector } from "../components/ProfileSelector";
 
@@ -80,6 +81,11 @@ export function DefaultLayout() {
       key: "/categories",
       icon: <TagsOutlined />,
       label: "Categorias",
+    },
+    {
+      key: "/purchase-goals",
+      icon: <GiftOutlined />,
+      label: "Metas de Compra",
     },
     {
       key: "/profiles",

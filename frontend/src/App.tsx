@@ -4,6 +4,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Transactions } from "./pages/Transactions";
 import { Categories } from "./pages/Categories";
 import { Profiles } from "./pages/Profiles";
+import { PurchaseGoals } from "./pages/PurchaseGoals";
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/profiles" element={<Profiles />} />
+          <Route path="/purchase-goals" element={<PurchaseGoals />} />
         </Route>
       </Routes>
     </BrowserRouter>

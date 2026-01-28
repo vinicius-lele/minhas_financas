@@ -28,6 +28,33 @@ db.exec(`
     FOREIGN KEY (profile_id) REFERENCES profiles(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
   );
+
+  CREATE TABLE IF NOT EXISTS purchase_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    profile_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    category TEXT,
+    target_amount REAL NOT NULL CHECK (target_amount > 0),
+    current_amount_saved REAL NOT NULL DEFAULT 0,
+    priority TEXT,
+    deadline TEXT,
+    notes TEXT,
+    is_completed INTEGER NOT NULL DEFAULT 0,
+    completed_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS savings_transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    goal_id INTEGER NOT NULL,
+    amount REAL NOT NULL CHECK (amount > 0),
+    date TEXT NOT NULL,
+    notes TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (goal_id) REFERENCES purchase_goals(id)
+  );
 `);
 
 // Migration: Add profile_id to categories if not exists

@@ -5,6 +5,7 @@ import { profilesRoutes } from "./routes/profiles.routes";
 import { categoriesRoutes } from "./routes/categories.routes";
 import { transactionsRoutes } from "./routes/transactions.routes";
 import { summaryRoutes } from "./routes/summary.routes";
+import { purchaseGoalsRoutes } from "./routes/purchaseGoals.routes";
 
 const app = Fastify({ 
   bodyLimit: 1048576,
@@ -15,11 +16,13 @@ app.register(cors, {
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 });
 
+
 // Registrar rotas com prefixo
 app.register(profilesRoutes, { prefix: "/profiles" });
 app.register(categoriesRoutes, { prefix: "/categories" });
 app.register(transactionsRoutes, { prefix: "/transactions" });
 app.register(summaryRoutes, { prefix: "/summary" });
+app.register(purchaseGoalsRoutes, { prefix: "/purchase-goals" });
 
 // Rota raiz de teste
 app.get("/", async () => {

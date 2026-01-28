@@ -1,26 +1,3 @@
-export interface Profile {
-  id: number;
-  name: string;
-}
-
-export type TransactionType = "INCOME" | "EXPENSE";
-
-export interface Transaction {
-  id: number;
-  description: string;
-  amount: number;
-  type: TransactionType;
-  category_id: number | null;
-  date: string;
-}
-
-export interface Category {
-  id: number;
-  name: string;
-  emoji: string;
-  type: TransactionType;
-}
-
 export type GoalPriority = "Baixa" | "Média" | "Alta" | "Urgente";
 
 export interface PurchaseGoal {
@@ -37,16 +14,6 @@ export interface PurchaseGoal {
   completed_at?: string | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface GoalSummary {
-  totalGoals: number;
-  completed: number;
-  active: number;
-  overdue: number;
-  percentCompleted: number;
-  totalSavedActive: number;
-  totalRemainingActive: number;
 }
 
 export interface SavingsTransaction {

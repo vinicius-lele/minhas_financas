@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useProfile } from "../contexts/ProfileContext";
-import type { TransactionType } from "../types";
-import { Card, Col, Row, Statistic, Typography, Spin, Empty } from "antd";
+import type { TransactionType, GoalSummary } from "../types";
+import { Card, Col, Row, Statistic, Typography, Spin, Empty, Progress } from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined, DollarOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 
@@ -30,6 +30,7 @@ export function Dashboard() {
   const [summary, setSummary] = useState<SummaryData>({ income: 0, expense: 0, balance: 0 });
   const [categorySummary, setCategorySummary] = useState<CategorySummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [goals, setGoals] = useState<GoalSummary | null>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -37,13 +38,15 @@ export function Dashboard() {
     async function loadData() {
       try {
         setLoading(true);
-        const [summaryData, catData] = await Promise.all([
+        const [summaryData, catData, goalsData] = await Promise.all([
           api<SummaryData>("/summary"),
-          api<CategorySummary[]>("/summary/categories")
+          api<CategorySummary[]>("/summary/categories"),
+          api<GoalSummary>("/purchase-goals/summary"),
         ]);
         
         setSummary(summaryData);
         setCategorySummary(catData);
+        setGoals(goalsData);
       } catch (error) {
         console.error("Erro ao carregar dashboard", error);
       } finally {
@@ -118,6 +121,34 @@ export function Dashboard() {
         </Col>
       </Row>
 
+      {goals && (
+        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+          <Col xs={24}>
+            <Card bordered={false} className="shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Text type="secondary">Metas de Compras</Text>
+                  <div className="text-slate-700 font-semibold">
+                    {goals.completed}/{goals.totalGoals} concluídas
+                  </div>
+                </div>
+                <div className="text-slate-500">
+                  Ativas: {goals.active}
+                </div>
+              </div>
+              <div style={{ marginTop: 12 }}>
+                <Progress
+                  percent={goals.percentCompleted}
+                  status="active"
+                  strokeColor={{ from: "#2563eb", to: "#60a5fa" }}
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+        
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         <Col xs={24} lg={12}>
             <Card 

@@ -14,6 +14,8 @@
   "description": "",
   "dependencies": {
     "@fastify/cors": "^11.2.0",
+    "@fastify/swagger": "^9.4.1",
+    "@fastify/swagger-ui": "^3.0.0",
     "better-sqlite3": "^12.6.2",
     "fastify": "^5.7.1",
     "minhas_financas": "file:.."
