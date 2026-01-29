@@ -44,10 +44,10 @@ export function deleteBudget(id: number) {
 export function getBudgetSummary(profileId: number, month: number, year: number) {
   return db.prepare(
     `SELECT c.id as category_id, c.name as category_name, c.emoji as category_emoji, c.type,
-            COALESCE(b.amount, 0) as budget_amount,
+            b.amount as budget_amount,
             COALESCE(SUM(t.amount), 0) as spent_amount
      FROM categories c
-     LEFT JOIN budgets b ON c.id = b.category_id AND b.profile_id = ? AND b.month = ? AND b.year = ?
+     JOIN budgets b ON c.id = b.category_id AND b.profile_id = ? AND b.month = ? AND b.year = ?
      LEFT JOIN transactions t ON c.id = t.category_id AND t.profile_id = ? AND 
             strftime('%m', t.date) = ? AND strftime('%Y', t.date) = ? AND t.type = 'EXPENSE'
      WHERE c.profile_id = ? AND c.type = 'EXPENSE'
