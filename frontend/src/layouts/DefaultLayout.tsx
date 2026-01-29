@@ -83,6 +83,11 @@ export function DefaultLayout() {
       label: "Categorias",
     },
     {
+      key: "/budgets",
+      icon: <WalletOutlined />,
+      label: "Orçamentos",
+    },
+    {
       key: "/purchase-goals",
       icon: <GiftOutlined />,
       label: "Metas de Compra",
@@ -128,7 +133,7 @@ export function DefaultLayout() {
         onClose={() => setMobileOpen(false)}
         open={mobileOpen}
         styles={{ body: { padding: 0, backgroundColor: "#001529" } }}
-        width={250}
+        size={250}
         closeIcon={null}
       >
         <SidebarContent 

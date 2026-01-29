@@ -6,6 +6,7 @@ import { categoriesRoutes } from "./routes/categories.routes";
 import { transactionsRoutes } from "./routes/transactions.routes";
 import { summaryRoutes } from "./routes/summary.routes";
 import { purchaseGoalsRoutes } from "./routes/purchaseGoals.routes";
+import { budgetsRoutes } from "./routes/budgets.routes";
 
 const app = Fastify({ 
   bodyLimit: 1048576,
@@ -23,6 +24,7 @@ app.register(categoriesRoutes, { prefix: "/categories" });
 app.register(transactionsRoutes, { prefix: "/transactions" });
 app.register(summaryRoutes, { prefix: "/summary" });
 app.register(purchaseGoalsRoutes, { prefix: "/purchase-goals" });
+app.register(budgetsRoutes, { prefix: "/budgets" });
 
 // Rota raiz de teste
 app.get("/", async () => {

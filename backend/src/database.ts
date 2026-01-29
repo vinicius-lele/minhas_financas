@@ -55,6 +55,18 @@ db.exec(`
     created_at TEXT NOT NULL,
     FOREIGN KEY (goal_id) REFERENCES purchase_goals(id)
   );
+
+  CREATE TABLE IF NOT EXISTS budgets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    profile_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL,
+    month INTEGER NOT NULL CHECK (month BETWEEN 1 AND 12),
+    year INTEGER NOT NULL,
+    amount REAL NOT NULL CHECK (amount > 0),
+    FOREIGN KEY (profile_id) REFERENCES profiles(id),
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    UNIQUE(profile_id, category_id, month, year)
+  );
 `);
 
 // Migration: Add profile_id to categories if not exists

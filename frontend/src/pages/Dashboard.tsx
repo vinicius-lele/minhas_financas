@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useProfile } from "../contexts/ProfileContext";
-import type { TransactionType, GoalSummary } from "../types";
+import type { TransactionType, GoalSummary, BudgetSummary } from "../types";
 import { Card, Col, Row, Statistic, Typography, Spin, Empty, Progress } from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined, DollarOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
@@ -31,6 +31,7 @@ export function Dashboard() {
   const [categorySummary, setCategorySummary] = useState<CategorySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [goals, setGoals] = useState<GoalSummary | null>(null);
+  const [budgetSummary, setBudgetSummary] = useState<BudgetSummary[]>([]);
 
   useEffect(() => {
     if (!profile) return;
@@ -38,15 +39,21 @@ export function Dashboard() {
     async function loadData() {
       try {
         setLoading(true);
-        const [summaryData, catData, goalsData] = await Promise.all([
+        const currentDate = new Date();
+        const month = currentDate.getMonth() + 1;
+        const year = currentDate.getFullYear();
+        
+        const [summaryData, catData, goalsData, budgetData] = await Promise.all([
           api<SummaryData>("/summary"),
           api<CategorySummary[]>("/summary/categories"),
           api<GoalSummary>("/purchase-goals/summary"),
+          api<BudgetSummary[]>(`/budgets/summary?month=${month}&year=${year}`),
         ]);
         
         setSummary(summaryData);
         setCategorySummary(catData);
         setGoals(goalsData);
+        setBudgetSummary(budgetData);
       } catch (error) {
         console.error("Erro ao carregar dashboard", error);
       } finally {
@@ -142,6 +149,55 @@ export function Dashboard() {
                   status="active"
                   strokeColor={{ from: "#2563eb", to: "#60a5fa" }}
                 />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      {budgetSummary && budgetSummary.length > 0 && (
+        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+          <Col xs={24}>
+            <Card bordered={false} className="shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Text type="secondary">Orçamentos do Mês</Text>
+                  <div className="text-slate-700 font-semibold">
+                    {budgetSummary.length} categorias com orçamento
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: 12 }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {budgetSummary.map((budget) => {
+                    const percent = budget.budget_amount > 0
+                      ? Math.round((budget.spent_amount / budget.budget_amount) * 100)
+                      : 0;
+                    return (
+                      <div key={budget.category_id} className="bg-slate-50 p-4 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span>{budget.category_emoji}</span>
+                            <Text strong>{budget.category_name}</Text>
+                          </div>
+                          <Text type={percent >= 100 ? 'danger' : percent >= 80 ? 'warning' : 'success'}>
+                            {percent}%
+                          </Text>
+                        </div>
+                        <Progress
+                          percent={percent}
+                          strokeColor={percent >= 100 ? '#cf1322' : percent >= 80 ? '#fa8c16' : '#3f8600'}
+                          showInfo={false}
+                          size="small"
+                        />
+                        <div className="flex items-center justify-between mt-1 text-xs text-slate-500">
+                          <span>Gasto: {formatCurrency(budget.spent_amount)}</span>
+                          <span>Orçado: {formatCurrency(budget.budget_amount)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </Card>
           </Col>

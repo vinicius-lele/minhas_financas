@@ -57,3 +57,24 @@ export interface SavingsTransaction {
   notes?: string | null;
   created_at: string;
 }
+
+export interface Budget {
+  id: number;
+  profile_id: number;
+  category_id: number;
+  month: number;
+  year: number;
+  amount: number;
+  category_name?: string;
+  category_emoji?: string;
+  category_type?: TransactionType;
+}
+
+export interface BudgetSummary {
+  category_id: number;
+  category_name: string;
+  category_emoji: string;
+  type: TransactionType;
+  budget_amount: number;
+  spent_amount: number;
+}
