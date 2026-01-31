@@ -131,7 +131,7 @@ export function Categories() {
 
   if (!profile) return (
     <div className="flex flex-col items-center justify-center h-64 text-slate-500 gap-4">
-        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+        <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
             <SearchOutlined style={{ fontSize: 32, color: '#cbd5e1' }} />
         </div>
         <p>Selecione um perfil para gerenciar categorias.</p>
@@ -174,8 +174,8 @@ export function Categories() {
               avatar={
                 <div className={`w-12 h-12 text-2xl rounded-xl flex items-center justify-center border ${
                   item.type === 'INCOME' 
-                    ? 'bg-emerald-50 border-emerald-100' 
-                    : 'bg-red-50 border-red-100'
+                    ? 'bg-primary-50 border-primary-100' 
+                    : 'bg-primary-50 border-primary-100'
                 }`}>
                   {item.emoji}
                 </div>
@@ -283,7 +283,7 @@ export function Categories() {
             />
           </Form.Item>
 
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 mb-6 max-h-60 overflow-y-auto">
+          <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mb-6 max-h-60 overflow-y-auto">
             {Object.entries(emojiList).map(([group, emojis]) => (
               <div key={group} className="mb-3 last:mb-0">
                 <Text type="secondary" style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase' }}>

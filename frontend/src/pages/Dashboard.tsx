@@ -23,7 +23,7 @@ type CategorySummary = {
   color?: string;
 };
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+const COLORS = ['#f18539', '#b5531e', '#8f4018', '#723414', '#d96b27', '#f59e61'];
 
 export function Dashboard() {
   const { profile } = useProfile();
@@ -83,7 +83,7 @@ export function Dashboard() {
     >
       <div>
         <Title level={2} style={{ margin: 0, letterSpacing: "-0.5px" }}>Visão Geral</Title>
-        <Text type="secondary">Resumo financeiro do perfil <strong style={{ color: "#334155" }}>{profile.name}</strong></Text>
+        <Text type="secondary">Resumo financeiro do perfil <strong style={{ color: "var(--text-main)" }}>{profile.name}</strong></Text>
       </div>
       
       <Row gutter={[16, 16]} align="stretch">
@@ -147,7 +147,7 @@ export function Dashboard() {
                 <Progress
                   percent={goals.percentCompleted}
                   status="active"
-                  strokeColor={{ from: "#2563eb", to: "#60a5fa" }}
+                  strokeColor={{ from: "#f18539", to: "#d96b27" }}
                 />
               </div>
             </Card>
@@ -174,7 +174,7 @@ export function Dashboard() {
                       ? Math.round((budget.spent_amount / budget.budget_amount) * 100)
                       : 0;
                     return (
-                      <div key={budget.category_id} className="bg-slate-50 p-4 rounded-lg">
+                      <div key={budget.category_id} className="bg-white p-4 rounded-lg ">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <span>{budget.category_emoji}</span>
@@ -186,11 +186,11 @@ export function Dashboard() {
                         </div>
                         <Progress
                           percent={percent}
-                          strokeColor={percent >= 100 ? '#cf1322' : percent >= 80 ? '#fa8c16' : '#3f8600'}
+                          strokeColor={percent >= 100 ? '#991b1b' : percent >= 80 ? '#d97706' : '#166534'}
                           showInfo={false}
                           size="small"
                         />
-                        <div className="flex items-center justify-between mt-1 text-xs text-slate-500">
+                        <div className="flex items-center justify-between mt-1 text-xs text-primary-700">
                           <span>Gasto: {formatCurrency(budget.spent_amount)}</span>
                           <span>Orçado: {formatCurrency(budget.budget_amount)}</span>
                         </div>

@@ -255,7 +255,8 @@ export function Transactions() {
             {category ? `${category.emoji} ${category.name}` : 'Sem Categoria'}
           </Tag>
         );
-      }
+      },
+       sorter: (a: Transaction, b: Transaction) => (a.category_id || 0) - (b.category_id || 0),
     },
     {
       title: 'Valor',
@@ -284,7 +285,7 @@ export function Transactions() {
               type="text" 
               icon={<EditOutlined />} 
               onClick={() => handleEdit(record)}
-              className="text-blue-600 hover:bg-blue-50"
+              className="text-primary-600 hover:bg-primary-50"
             />
           </Tooltip>
           <Popconfirm
@@ -299,7 +300,7 @@ export function Transactions() {
                 type="text" 
                 danger 
                 icon={<DeleteOutlined />} 
-                className="hover:bg-red-50"
+                className="hover:bg-primary-50"
               />
             </Tooltip>
           </Popconfirm>
@@ -310,7 +311,7 @@ export function Transactions() {
 
   if (!profile) return (
     <div className="flex flex-col items-center justify-center h-64 text-slate-500 gap-4">
-        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+        <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
             <SearchOutlined style={{ fontSize: 32, color: '#cbd5e1' }} />
         </div>
         <p>Selecione um perfil para visualizar as transações.</p>

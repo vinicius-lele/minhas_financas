@@ -10,14 +10,14 @@
   color-scheme: light;
   
   /* Brand Colors */
-  --primary: #2563eb; /* blue-600 */
-  --primary-hover: #1d4ed8; /* blue-700 */
-  --secondary: #475569; /* slate-600 */
-  --background: #f8fafc; /* slate-50 */
+  --primary: #f18539; /* brown-500 */
+  --primary-hover: #d96b27; /* brown-600 */
+  --secondary: #78350f; /* brown-800 */
+  --background: #fef3e2; /* brown-50 */
   --surface: #ffffff;
-  --text-main: #0f172a; /* slate-900 */
-  --text-muted: #64748b; /* slate-500 */
-  --border: #e2e8f0; /* slate-200 */
+  --text-main: #431e09; /* brown-950 */
+  --text-muted: #92400e; /* brown-700 */
+  --border: #fde6d2; /* brown-100 */
 }
 
 body {
@@ -41,12 +41,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #fbd2b0;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #f8b98b;
 }
 
 /* Component utility classes removed due to Tailwind v4 @apply restrictions */
