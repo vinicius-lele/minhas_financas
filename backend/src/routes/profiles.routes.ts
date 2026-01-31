@@ -12,19 +12,19 @@ export async function profilesRoutes(app: FastifyInstance) {
   });
 
   app.post("/", async (req: any) => {
-    const { name } = req.body;
-    return createProfile(name);
+    const { name, theme } = req.body;
+    return createProfile(name, theme);
   });
 
   app.put<{ Params: { id: string } }>("/:id", async (req: any) => {
     const id = Number(req.params.id);
-    const { name } = req.body;
+    const { name, theme } = req.body;
 
     if (Number.isNaN(id)) {
       return { error: "ID inválido" };
     }
 
-    updateProfile(id, name);
+    updateProfile(id, name, theme);
     return { ok: true };
   });
 

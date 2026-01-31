@@ -135,11 +135,11 @@ export function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <Text type="secondary">Metas de Compras</Text>
-                  <div className="text-slate-700 font-semibold">
+                  <div className="font-semibold">
                     {goals.completed}/{goals.totalGoals} concluídas
                   </div>
                 </div>
-                <div className="text-slate-500">
+                <div>
                   Ativas: {goals.active}
                 </div>
               </div>
@@ -171,7 +171,7 @@ export function Dashboard() {
                       ? Math.round((budget.spent_amount / budget.budget_amount) * 100)
                       : 0;
                     return (
-                      <div key={budget.category_id} className="bg-white p-4 rounded-lg ">
+                      <div key={budget.category_id} className="bg-surface p-4 rounded-lg ">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <span>{budget.category_emoji}</span>
@@ -187,7 +187,7 @@ export function Dashboard() {
                           showInfo={false}
                           size="small"
                         />
-                        <div className="flex items-center justify-between mt-1 text-xs text-primary-700">
+                        <div className="flex items-center justify-between mt-1 text-xs">
                           <span>Gasto: {formatCurrency(budget.spent_amount)}</span>
                           <span>Orçado: {formatCurrency(budget.budget_amount)}</span>
                         </div>

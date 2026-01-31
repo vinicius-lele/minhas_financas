@@ -7,8 +7,9 @@ interface ProfileContextType {
   profiles: Profile[];
   loading: boolean;
   selectProfile: (profile: Profile) => void;
-  createProfile: (name: string) => Promise<void>;
+  createProfile: (name: string, theme?: Profile['theme']) => Promise<void>;
   updateProfile: (id: number, name: string) => Promise<void>;
+  updateProfileTheme: (id: number, theme: Profile['theme']) => Promise<void>;
   deleteProfile: (id: number) => Promise<void>;
   refreshProfiles: () => Promise<void>;
 }
@@ -51,10 +52,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("selectedProfileId", String(p.id));
   };
 
-  const createProfile = async (name: string) => {
+  const createProfile = async (name: string, theme: Profile['theme'] = 'blue') => {
     await api("/profiles", {
       method: "POST",
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, theme }),
     });
     await refreshProfiles();
   };
@@ -63,6 +64,14 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     await api(`/profiles/${id}`, {
       method: "PUT",
       body: JSON.stringify({ name }),
+    });
+    await refreshProfiles();
+  };
+
+  const updateProfileTheme = async (id: number, theme: Profile['theme']) => {
+    await api(`/profiles/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ theme }),
     });
     await refreshProfiles();
   };
@@ -77,7 +86,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ProfileContext.Provider value={{ profile, profiles, loading, selectProfile, createProfile, updateProfile, deleteProfile, refreshProfiles }}>
+    <ProfileContext.Provider value={{ profile, profiles, loading, selectProfile, createProfile, updateProfile, updateProfileTheme, deleteProfile, refreshProfiles }}>
       {children}
     </ProfileContext.Provider>
   );

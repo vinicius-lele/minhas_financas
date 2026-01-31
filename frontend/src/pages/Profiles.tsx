@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useProfile } from "../contexts/ProfileContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { 
   Card, 
   Button, 
   Modal, 
   Form, 
   Input, 
+  Select, 
   List, 
   Typography, 
   Avatar, 
@@ -28,14 +30,15 @@ import { motion } from "framer-motion";
 const { Title } = Typography;
 
 export function Profiles() {
-  const { profiles, createProfile, updateProfile, deleteProfile } = useProfile();
+  const { profiles, createProfile, updateProfile, updateProfileTheme, deleteProfile } = useProfile();
+  const { availableThemes } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form] = Form.useForm();
 
   const handleEdit = (profile: Profile) => {
     setEditingId(profile.id);
-    form.setFieldsValue({ name: profile.name });
+    form.setFieldsValue({ name: profile.name, theme: profile.theme });
     setIsModalOpen(true);
   };
 
@@ -61,13 +64,14 @@ export function Profiles() {
     }
   };
 
-  const onFinish = async (values: { name: string }) => {
+  const onFinish = async (values: { name: string; theme: Profile['theme'] }) => {
     try {
       if (editingId) {
         await updateProfile(editingId, values.name);
+        await updateProfileTheme(editingId, values.theme);
         message.success("Perfil atualizado!");
       } else {
-        await createProfile(values.name);
+        await createProfile(values.name, values.theme);
         message.success("Perfil criado!");
       }
       handleCancel();
@@ -103,7 +107,7 @@ export function Profiles() {
           </Col>
         </Row>
       </Card>
-
+      <div style={{ marginTop: 12 }}>
       <Card bordered={false} className="shadow-sm">
         <List
           grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 }}
@@ -159,6 +163,7 @@ export function Profiles() {
           )}
         />
       </Card>
+      </div>
 
       <Modal
         title={editingId ? "Editar Perfil" : "Novo Perfil"}
@@ -178,6 +183,26 @@ export function Profiles() {
             rules={[{ required: true, message: 'Informe o nome do perfil' }]}
           >
             <Input placeholder="Ex: Pessoal, Trabalho..." />
+          </Form.Item>
+
+          <Form.Item
+            name="theme"
+            label="Tema"
+            rules={[{ required: true, message: 'Selecione um tema' }]}
+          >
+            <Select placeholder="Escolha um tema">
+              {availableThemes.map((theme) => (
+                <Select.Option key={theme.name} value={theme.name}>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: theme.colors.primary }}
+                    />
+                    {theme.displayName}
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item className="mb-0 flex justify-end">

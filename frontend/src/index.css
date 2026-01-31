@@ -7,17 +7,15 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;
-  
-  /* Brand Colors */
-  --primary: #f18539; /* brown-500 */
-  --primary-hover: #d96b27; /* brown-600 */
-  --secondary: #78350f; /* brown-800 */
-  --background: #fef3e2; /* brown-50 */
+  /* These variables will be dynamically updated by ThemeProvider */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary: #475569;
+  --background: #f8fafc;
   --surface: #ffffff;
-  --text-main: #431e09; /* brown-950 */
-  --text-muted: #92400e; /* brown-700 */
-  --border: #fde6d2; /* brown-100 */
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
 }
 
 body {
@@ -47,6 +45,77 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #f8b98b;
+}
+
+/* Component utility classes */
+.bg-surface {
+  background-color: var(--surface);
+}
+
+/* Ensure Ant Design secondary text uses our theme variable */
+.ant-typography-secondary,
+.ant-statistic-title {
+  color: var(--text-muted) !important;
+}
+
+/* Ensure good contrast for table sorters, pagination, and icons */
+.ant-table-column-sorter,
+.ant-pagination-item-link,
+.anticon,
+.ant-select-arrow,
+.ant-picker-suffix {
+  color: var(--text-muted) !important;
+}
+
+/* Ensure visible text in selected items */
+.ant-select-selection-item,
+.ant-picker-input input {
+  color: var(--text-main) !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: var(--border) !important;
+  color: var(--text-main) !important;
+}
+
+/* Ensure proper contrast for tags */
+.ant-tag {
+  background-color: var(--border) !important;
+  color: var(--text-main) !important;
+}
+
+/* Ensure visible placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+.ant-select-placeholder,
+.ant-select-selection-placeholder {
+  color: var(--text-muted) !important;
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-in-range .ant-picker-cell-inner {
+  background-color: var(--border) !important;
+  color: var(--text-main) !important;
+}
+
+/* Fix button border/shadow issue in dark mode */
+.ant-btn {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.ant-btn[disabled],
+.ant-btn.ant-btn-disabled {
+  opacity: 1 !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border) !important;
+  background-color: transparent !important;
 }
 
 /* Component utility classes removed due to Tailwind v4 @apply restrictions */

@@ -29,8 +29,8 @@ function SidebarContent({
 }) {
   return (
     <>
-      <div className="h-16 flex items-center justify-center gap-2 border-b border-slate-700/50 m-2 mb-4">
-        <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
+      <div className="h-16 flex items-center justify-center gap-2 border-b border-border m-2 mb-4">
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/30">
           <WalletOutlined style={{ fontSize: 18 }} />
         </div>
         {!collapsed && (
@@ -38,7 +38,7 @@ function SidebarContent({
             <span className="text-white font-bold text-lg leading-none tracking-tight">
               Minhas
             </span>
-            <span className="text-primary-400 font-bold text-lg leading-none tracking-tight">
+            <span className="text-primary font-bold text-lg leading-none tracking-tight">
               Finanças
             </span>
           </div>
@@ -171,7 +171,7 @@ export function DefaultLayout() {
                 height: 48,
               }}
             />
-            <h1 className="text-xl font-bold text-slate-700 m-0 hidden sm:block">
+            <h1 className="text-xl font-bold m-0 hidden sm:block">
               {menuItems.find((i) => i.key === location.pathname)?.label || "Dashboard"}
             </h1>
           </div>

@@ -5,7 +5,8 @@ export const db = new Database("./database/database.db");
 db.exec(`
   CREATE TABLE IF NOT EXISTS profiles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    theme TEXT NOT NULL DEFAULT 'blue'
   );
 
   CREATE TABLE IF NOT EXISTS categories (
@@ -81,9 +82,21 @@ try {
   console.error("Erro na migração de categories:", error);
 }
 
+// Migration: Add theme to profiles if not exists
+try {
+  const tableInfo = db.pragma("table_info(profiles)") as { name: string }[];
+  const hasTheme = tableInfo.some((col) => col.name === "theme");
+  if (!hasTheme) {
+    db.exec("ALTER TABLE profiles ADD COLUMN theme TEXT NOT NULL DEFAULT 'blue'");
+    console.log("Migração: Coluna theme adicionada à tabela profiles");
+  }
+} catch (error) {
+  console.error("Erro na migração de profiles:", error);
+}
+
 // Seed initial profile if not exists
 const profileCount = db.prepare("SELECT count(*) as count FROM profiles").get() as { count: number };
 if (profileCount.count === 0) {
-  db.prepare("INSERT INTO profiles (id, name) VALUES (?, ?)").run(1, "Padrão");
+  db.prepare("INSERT INTO profiles (id, name, theme) VALUES (?, ?, ?)").run(1, "Padrão", "blue");
   console.log("Perfil padrão criado com ID 1");
 }

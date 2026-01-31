@@ -18,7 +18,7 @@ export function ProfileSelector() {
         label: (
             <div className="flex items-center justify-between w-full min-w-[150px]">
                 <span>{p.name}</span>
-                {profile?.id === p.id && <CheckOutlined style={{ color: "#2563eb" }} />}
+                {profile?.id === p.id && <CheckOutlined style={{ color: "var(--primary)" }} />}
             </div>
         ),
         onClick: () => selectProfile(p),
@@ -32,14 +32,14 @@ export function ProfileSelector() {
         <Space>
           <Avatar
             size="small"
-            style={{ backgroundColor: "#e6f4ff", color: "#2563eb" }}
+            style={{ backgroundColor: "var(--primary)30", color: "var(--primary)" }}
             icon={<UserOutlined />}
           />
           <div className="flex flex-col items-start leading-tight">
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Perfil</span>
-            <span className="font-semibold text-slate-700">{profile?.name || "Selecione"}</span>
+            <span className="text-[10px] text-text-muted font-bold uppercase">Perfil</span>
+            <span className="font-semibold">{profile?.name || "Selecione"}</span>
           </div>
-          <DownOutlined style={{ fontSize: 12, color: "#94a3b8" }} />
+          <DownOutlined style={{ fontSize: 12, color: "var(--text-muted)" }} />
         </Space>
       </Button>
     </Dropdown>

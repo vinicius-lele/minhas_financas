@@ -1,6 +1,7 @@
 export interface Profile {
   id: number;
   name: string;
+  theme: 'blue' | 'dark' | 'brown' | 'green' | 'pink' | 'purple';
 }
 
 export type TransactionType = "INCOME" | "EXPENSE";

@@ -297,13 +297,13 @@ export function Budgets() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded-lg">
+                <div className="bg-surface p-4 rounded-lg">
                   <Text type="secondary" className="text-xs">Categorias com Orçamento</Text>
                   <div className="text-2xl font-bold mt-1">
                     {budgets.length}
                   </div>
                 </div>
-                <div className="bg-white p-4 rounded-lg">
+                <div className="bg-surface p-4 rounded-lg">
                   <Text type="secondary" className="text-xs">Total Orçado</Text>
                   <div className="text-2xl font-bold mt-1">
                     {new Intl.NumberFormat('pt-BR', {
@@ -314,7 +314,7 @@ export function Budgets() {
                     )}
                   </div>
                 </div>
-                <div className="bg-white p-4 rounded-lg">
+                <div className="bg-surface p-4 rounded-lg">
                   <Text type="secondary" className="text-xs">Total Gasto</Text>
                   <div className="text-2xl font-bold mt-1">
                     {new Intl.NumberFormat('pt-BR', {
