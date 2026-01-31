@@ -360,7 +360,7 @@ export function Transactions() {
         </Row>
       </Card>
 
-      <Card bordered={false} className="shadow-sm" bodyStyle={{ padding: 0 }}>
+      <Card className="shadow-sm" style={{ marginTop: 12 }}>
         <Table 
           columns={columns} 
           dataSource={transactions} 

@@ -152,7 +152,7 @@ export function PurchaseGoals() {
 
   const columns = [
     {
-      title: "Meta",
+      title: "Item",
       dataIndex: "name",
       key: "name",
       render: (_: any, record: PurchaseGoal) => (
@@ -185,7 +185,7 @@ export function PurchaseGoals() {
       render: (d: string | null) => (d ? dayjs(d).format("DD/MM/YYYY") : "-"),
     },
     {
-      title: "Alvo",
+      title: "Valor",
       dataIndex: "target_amount",
       key: "target_amount",
       render: (v: number) =>

@@ -162,9 +162,6 @@ export function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <Text type="secondary">Orçamentos do Mês</Text>
-                  <div className="text-slate-700 font-semibold">
-                    {budgetSummary.length} categorias com orçamento
-                  </div>
                 </div>
               </div>
               <div style={{ marginTop: 12 }}>

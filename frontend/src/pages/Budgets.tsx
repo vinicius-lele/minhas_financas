@@ -315,7 +315,7 @@ export function Budgets() {
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg">
-                  <Text type="secondary" className="text-xs">Total Gastado</Text>
+                  <Text type="secondary" className="text-xs">Total Gasto</Text>
                   <div className="text-2xl font-bold mt-1">
                     {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',

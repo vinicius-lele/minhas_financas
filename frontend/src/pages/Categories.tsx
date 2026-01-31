@@ -196,7 +196,7 @@ export function Categories() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card bordered={false} className="shadow-sm">
+      <Card className="shadow-sm">
         <Row justify="space-between" align="middle">
           <Col>
             <Title level={4} style={{ margin: 0 }}>Gerenciar Categorias</Title>
@@ -216,7 +216,7 @@ export function Categories() {
         </Row>
       </Card>
 
-      <Card bordered={false} className="shadow-sm">
+      <Card className="shadow-sm" style={{ marginTop: 12 }}>
         <Tabs
           defaultActiveKey="EXPENSE"
           items={[
