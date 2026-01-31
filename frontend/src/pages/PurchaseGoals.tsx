@@ -230,7 +230,7 @@ export function PurchaseGoals() {
             disabled={record.is_completed === 1}
             onClick={() => handleComplete(record)}
           >
-            Comprar
+            { record.is_completed === 0? "Comprar":"Finalizado"}
           </Button>
           <Popconfirm
             title="Remover meta?"
