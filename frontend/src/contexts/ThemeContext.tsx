@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
 import { useProfile } from './ProfileContext';
 import { themes, type ThemeConfig, type ThemeName } from '../themes/themeConfig';
 
@@ -12,15 +12,11 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { profile, updateProfileTheme } = useProfile();
-  const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(themes.blue);
-
-  // Update theme when profile changes
-  useEffect(() => {
+  const currentTheme = useMemo<ThemeConfig>(() => {
     if (profile?.theme) {
-      setCurrentTheme(themes[profile.theme] || themes.blue);
-    } else {
-      setCurrentTheme(themes.blue);
+      return themes[profile.theme] || themes.blue;
     }
+    return themes.blue;
   }, [profile]);
 
   // Update CSS variables when theme changes

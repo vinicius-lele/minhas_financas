@@ -12,7 +12,7 @@ type ResetFormValues = {
 
 export function ResetPassword() {
   const navigate = useNavigate();
-  const { token } = useParams<{ token: string }>();
+  const { token } = useParams();
 
   const handleFinish = async (values: ResetFormValues) => {
     if (!token) {
@@ -30,9 +30,10 @@ export function ResetPassword() {
         }),
       });
       message.success("Senha redefinida com sucesso");
-      navigate("/login", { replace: true });
-    } catch (err: any) {
-      message.error(err?.message || "Não foi possível redefinir a senha");
+      navigate("/", { replace: true });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Não foi possível redefinir a senha";
+      message.error(msg);
     }
   };
 
@@ -85,11 +86,10 @@ export function ResetPassword() {
 
         <div className="text-center mt-4">
           <Text type="secondary">
-            Lembrou da senha? <Link to="/login">Voltar para login</Link>
+            Lembrou da senha? <Link to="/">Voltar para início</Link>
           </Text>
         </div>
       </Card>
     </div>
   );
 }
-

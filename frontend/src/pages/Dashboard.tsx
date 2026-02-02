@@ -43,15 +43,31 @@ export function Dashboard() {
         const month = currentDate.getMonth() + 1;
         const year = currentDate.getFullYear();
         
-        const [summaryData, catData, goalsData, budgetData] = await Promise.all([
+        const [summaryData, rawCatData, goalsData, budgetData] = await Promise.all([
           api<SummaryData>("/summary"),
-          api<CategorySummary[]>("/summary/categories"),
+          api<unknown[]>("/summary/categories"),
           api<GoalSummary>("/purchase-goals/summary"),
           api<BudgetSummary[]>(`/budgets/summary?month=${month}&year=${year}`),
         ]);
+
+        const normalizedCategories: CategorySummary[] = (rawCatData ?? []).map((item, index) => {
+          const typed = item as {
+            name?: unknown;
+            total?: unknown;
+            type?: unknown;
+          };
+
+          return {
+            category: String(typed.name ?? ""),
+            name: String(typed.name ?? ""),
+            total: Number(typed.total ?? 0),
+            type: String(typed.type ?? "EXPENSE") as TransactionType,
+            color: COLORS[index % COLORS.length],
+          };
+        });
         
         setSummary(summaryData);
-        setCategorySummary(catData);
+        setCategorySummary(normalizedCategories);
         setGoals(goalsData);
         setBudgetSummary(budgetData);
       } catch (error) {
@@ -165,14 +181,14 @@ export function Dashboard() {
                 </div>
               </div>
               <div style={{ marginTop: 12 }}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {budgetSummary.map((budget) => {
                     const percent = budget.budget_amount > 0
                       ? Math.round((budget.spent_amount / budget.budget_amount) * 100)
                       : 0;
                     return (
-                      <div key={budget.category_id} className="bg-surface p-4 rounded-lg ">
-                        <div className="flex items-center justify-between mb-2">
+                      <div key={budget.category_id} className="bg-surface p-3 rounded-lg ">
+                        <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
                             <span>{budget.category_emoji}</span>
                             <Text strong>{budget.category_name}</Text>

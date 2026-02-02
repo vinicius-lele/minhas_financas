@@ -8,12 +8,13 @@ import { ConfigProvider } from "antd";
 import ptBR from "antd/locale/pt_BR";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 
 dayjs.locale("pt-br");
 
 // Component to provide the theme to ConfigProvider
-function ThemeConfigProvider({ children }: { children: React.ReactNode }) {
+export function ThemeConfigProvider({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
   
   return (

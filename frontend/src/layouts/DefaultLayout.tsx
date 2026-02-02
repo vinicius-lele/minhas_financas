@@ -205,7 +205,7 @@ export function DefaultLayout() {
                       label: "Sair",
                       onClick: () => {
                         logout().then(() => {
-                          window.location.href = "/login";
+                          navigate("/");
                         });
                       },
                     },

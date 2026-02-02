@@ -68,7 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           method: "POST",
         });
       }
-    } catch {
+    } catch (error) {
+      console.error("Erro ao sair da sessão", error);
     }
     setToken(null);
     setUser(null);
@@ -100,4 +101,3 @@ export function useAuth() {
   }
   return ctx;
 }
-

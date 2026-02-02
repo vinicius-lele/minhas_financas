@@ -59,7 +59,14 @@ export async function api<T = unknown>(url: string, options?: RequestInit): Prom
       localStorage.removeItem("authToken");
       localStorage.removeItem("authUser");
       localStorage.removeItem("selectedProfileId");
-      window.location.href = "/login";
+
+      const isAuthPath =
+        url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register");
+
+      if (!isAuthPath) {
+        window.location.href = "/";
+      }
+
       throw new Error("Não autenticado");
     }
 

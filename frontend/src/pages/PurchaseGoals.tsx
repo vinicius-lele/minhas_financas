@@ -6,10 +6,21 @@ import { api } from "../services/api";
 import { GoalProgress } from "../components/GoalProgress";
 import { useProfile } from "../contexts/ProfileContext";
 import type { GoalPriority, PurchaseGoal } from "../types";
+import type { ColumnsType } from "antd/es/table";
 
 const { Title } = Typography;
 
 type ListResponse = { data: PurchaseGoal[]; total: number };
+
+type GoalFormValues = {
+  name: string;
+  category?: string;
+  target_amount?: string;
+  current_amount_saved?: string;
+  priority?: GoalPriority;
+  deadline?: dayjs.Dayjs | null;
+  notes?: string;
+};
 
 export function PurchaseGoals() {
   const { profile } = useProfile();
@@ -49,7 +60,7 @@ export function PurchaseGoals() {
       const res = await api<ListResponse>(`/purchase-goals${queryString}`);
       setData(res.data);
       setTotal(res.total);
-    } catch (err) {
+    } catch {
       message.error("Erro ao carregar metas");
     } finally {
       setLoading(false);
@@ -61,7 +72,7 @@ export function PurchaseGoals() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile, queryString]);
 
-  async function handleCreate(values: any) {
+  async function handleCreate(values: GoalFormValues) {
     try {
       await api("/purchase-goals", {
         method: "POST",
@@ -119,7 +130,7 @@ export function PurchaseGoals() {
     });
   }
 
-  async function handleUpdate(values: any) {
+  async function handleUpdate(values: GoalFormValues) {
     if (!editing) return;
     try {
       await api(`/purchase-goals/${editing.id}`, {
@@ -150,12 +161,12 @@ export function PurchaseGoals() {
     form.setFieldValue("current_amount_saved", "0");
   }
 
-  const columns = [
+  const columns: ColumnsType<PurchaseGoal> = [
     {
       title: "Item",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: PurchaseGoal) => (
+      render: (_, record) => (
         <Space direction="vertical" size={0}>
           <span className="font-medium">{record.name}</span>
           {record.notes && <span className="text-slate-400 text-xs">{record.notes}</span>}
@@ -201,7 +212,7 @@ export function PurchaseGoals() {
     {
       title: "Progresso",
       key: "progress",
-      render: (_: any, record: PurchaseGoal) => (
+      render: (_, record) => (
         <GoalProgress current={record.current_amount_saved} target={record.target_amount} />
       ),
     },
@@ -215,7 +226,7 @@ export function PurchaseGoals() {
     {
       title: "Ações",
       key: "actions",
-      render: (_: any, record: PurchaseGoal) => (
+      render: (_, record) => (
         <Space>
           <Button
             type="default"
@@ -325,7 +336,7 @@ export function PurchaseGoals() {
               rowKey="id"
               loading={loading}
               dataSource={data}
-              columns={columns as any}
+              columns={columns}
               pagination={{
                 current: page,
                 pageSize,

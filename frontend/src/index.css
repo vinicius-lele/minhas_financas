@@ -52,12 +52,23 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #fbd2b0;
+  background: #fb923c;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #f8b98b;
+  background: #f97316;
+}
+
+.feature-card {
+  background-color: #ffedd5;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.feature-card:hover {
+  background-color: #fed7aa;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 /* Component utility classes */

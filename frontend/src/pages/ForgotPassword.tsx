@@ -22,8 +22,9 @@ export function ForgotPassword() {
       }
 
       message.success("Se o email existir, enviaremos instruções de recuperação");
-    } catch (err: any) {
-      message.error(err?.message || "Não foi possível iniciar a recuperação");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Não foi possível iniciar a recuperação";
+      message.error(msg);
     }
   };
 
@@ -60,11 +61,10 @@ export function ForgotPassword() {
 
         <div className="text-center mt-4">
           <Text type="secondary">
-            Lembrou da senha? <Link to="/login">Voltar para login</Link>
+            Lembrou da senha? <Link to="/">Voltar para início</Link>
           </Text>
         </div>
       </Card>
     </div>
   );
 }
-

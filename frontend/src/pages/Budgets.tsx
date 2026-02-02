@@ -138,7 +138,7 @@ export function Budgets() {
       handleModalClose();
       loadBudgets();
       loadBudgetSummary();
-    } catch (error) {
+    } catch {
       message.error("Erro ao salvar orçamento");
     }
   };
@@ -149,7 +149,7 @@ export function Budgets() {
       message.success("Orçamento excluído com sucesso");
       loadBudgets();
       loadBudgetSummary();
-    } catch (error) {
+    } catch {
       message.error("Erro ao excluir orçamento");
     }
   };
@@ -159,7 +159,7 @@ export function Budgets() {
       title: "Categoria",
       dataIndex: "category_name",
       key: "category_name",
-      render: (_: any, record: BudgetSummary) => (
+      render: (_: string, record: BudgetSummary) => (
         <div className="flex items-center gap-2">
           <span>{record.category_emoji}</span>
           <span>{record.category_name}</span>
@@ -192,7 +192,7 @@ export function Budgets() {
       title: "Progresso",
       dataIndex: "progress",
       key: "progress",
-      render: (_: any, record: BudgetSummary) => {
+      render: (_: number, record: BudgetSummary) => {
         const percent = record.budget_amount > 0 
           ? Math.round((record.spent_amount / record.budget_amount) * 100) 
           : 0;
@@ -217,7 +217,7 @@ export function Budgets() {
     {
       title: "Ação",
       key: "action",
-      render: (_: any, record: BudgetSummary) => {
+      render: (_: unknown, record: BudgetSummary) => {
         const existingBudget = budgets.find(b => b.category_id === record.category_id);
         return (
           <Space>
@@ -291,37 +291,45 @@ export function Budgets() {
         
         <Col xs={24} md={12} lg={16}>
           <Card bordered={false} className="shadow-sm">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <Text strong>Resumo do Mês</Text>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-surface p-4 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+                <div className="bg-surface p-2 rounded-lg">
                   <Text type="secondary" className="text-xs">Categorias com Orçamento</Text>
                   <div className="text-2xl font-bold mt-1">
                     {budgets.length}
                   </div>
                 </div>
-                <div className="bg-surface p-4 rounded-lg">
+                <div className="bg-surface p-2 rounded-lg">
                   <Text type="secondary" className="text-xs">Total Orçado</Text>
                   <div className="text-2xl font-bold mt-1">
                     {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL'
                     }).format(
-                      budgetSummary.reduce((sum, item) => sum + item.budget_amount, 0)
+                      budgetSummary.reduce((sum, item) => {
+                        const value = Number(item.budget_amount ?? 0);
+                        if (!Number.isFinite(value)) return sum;
+                        return sum + value;
+                      }, 0)
                     )}
                   </div>
                 </div>
-                <div className="bg-surface p-4 rounded-lg">
+                <div className="bg-surface p-2 rounded-lg">
                   <Text type="secondary" className="text-xs">Total Gasto</Text>
                   <div className="text-2xl font-bold mt-1">
                     {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL'
                     }).format(
-                      budgetSummary.reduce((sum, item) => sum + item.spent_amount, 0)
+                      budgetSummary.reduce((sum, item) => {
+                        const value = Number(item.spent_amount ?? 0);
+                        if (!Number.isFinite(value)) return sum;
+                        return sum + value;
+                      }, 0)
                     )}
                   </div>
                 </div>
