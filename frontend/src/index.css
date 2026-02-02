@@ -26,6 +26,19 @@ body {
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+}
+
+@media (min-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 16px;
+  }
 }
 
 /* Scrollbar Styling */
@@ -117,6 +130,8 @@ textarea::placeholder {
 .ant-btn {
   box-shadow: none !important;
   border: none !important;
+  min-height: 44px;
+  padding-inline: 16px;
 }
 
 .ant-btn[disabled],
@@ -125,6 +140,23 @@ textarea::placeholder {
   color: var(--text-muted) !important;
   border: 1px solid var(--border) !important;
   background-color: transparent !important;
+}
+
+.ant-menu-item,
+.ant-dropdown-menu-item {
+  min-height: 44px;
+}
+
+.ant-table {
+  width: 100%;
+}
+
+.ant-table-wrapper {
+  max-width: 100%;
+}
+
+.ant-table-content {
+  overflow-x: auto;
 }
 
 /* Component utility classes removed due to Tailwind v4 @apply restrictions */
