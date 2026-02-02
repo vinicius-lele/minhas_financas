@@ -43,7 +43,7 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "Credenciais inválidas" });
     }
 
-    const user = findUserByEmailOrUsername(identifier);
+    const user = await findUserByEmailOrUsername(identifier);
     if (!user || !user.is_active) {
       return reply.code(401).send({ error: "Usuário ou senha inválidos" });
     }
@@ -102,11 +102,11 @@ export async function authRoutes(app: FastifyInstance) {
     const token = authHeader.substring("Bearer ".length);
     try {
       const decoded = verifyAuthToken(token);
-      if (isTokenRevoked(decoded.jti)) {
+      if (await isTokenRevoked(decoded.jti)) {
         return reply.code(200).send({ ok: true });
       }
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      revokeToken(decoded.jti, decoded.sub, expiresAt);
+      await revokeToken(decoded.jti, decoded.sub, expiresAt);
       return reply.code(200).send({ ok: true });
     } catch {
       return reply.code(401).send({ error: "Token inválido" });
@@ -119,9 +119,9 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "Email inválido" });
     }
 
-    const user = findUserByEmail(email);
+    const user = await findUserByEmail(email);
     if (user) {
-      const { token } = createPasswordResetToken(user.id);
+      const { token } = await createPasswordResetToken(user.id);
       return reply.code(200).send({ ok: true, resetToken: token });
     }
 

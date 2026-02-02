@@ -17,13 +17,13 @@
     "@fastify/swagger": "^9.4.1",
     "@fastify/swagger-ui": "^3.0.0",
     "bcrypt": "^5.1.1",
-    "better-sqlite3": "^12.6.2",
+    "dotenv": "^16.4.5",
     "fastify": "^5.7.1",
     "jsonwebtoken": "^9.0.2",
-    "minhas_financas": "file:.."
+    "minhas_financas": "file:..",
+    "mysql2": "^3.16.2"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^25.0.9",

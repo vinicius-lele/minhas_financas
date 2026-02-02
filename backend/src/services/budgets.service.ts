@@ -1,57 +1,81 @@
-import { db } from '../database';
+import { pool } from "../database";
 
-export function listBudgets(profileId: number, month: number, year: number) {
-  return db.prepare(
+export async function listBudgets(profileId: number, month: number, year: number) {
+  const [rows] = await pool.query(
     `SELECT b.id, b.profile_id, b.category_id, b.month, b.year, b.amount, 
             c.name as category_name, c.emoji as category_emoji, c.type as category_type
      FROM budgets b
      JOIN categories c ON b.category_id = c.id
      WHERE b.profile_id = ? AND b.month = ? AND b.year = ?
-     ORDER BY c.name`
-  ).all(profileId, month, year);
+     ORDER BY c.name`,
+    [profileId, month, year]
+  );
+  return rows as any[];
 }
 
-export function getBudgetByCategory(profileId: number, categoryId: number, month: number, year: number) {
-  return db.prepare(
+export async function getBudgetByCategory(
+  profileId: number,
+  categoryId: number,
+  month: number,
+  year: number
+) {
+  const [rows] = await pool.query(
     `SELECT * FROM budgets 
-     WHERE profile_id = ? AND category_id = ? AND month = ? AND year = ?`
-  ).get(profileId, categoryId, month, year);
+     WHERE profile_id = ? AND category_id = ? AND month = ? AND year = ?`,
+    [profileId, categoryId, month, year]
+  );
+  const arr = rows as any[];
+  return arr[0];
 }
 
-export function createBudget(profileId: number, categoryId: number, month: number, year: number, amount: number) {
-  const stmt = db.prepare(
+export async function createBudget(
+  profileId: number,
+  categoryId: number,
+  month: number,
+  year: number,
+  amount: number
+) {
+  await pool.query(
     `INSERT INTO budgets (profile_id, category_id, month, year, amount)
      VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT(profile_id, category_id, month, year) DO UPDATE SET amount = excluded.amount`
+     ON DUPLICATE KEY UPDATE amount = VALUES(amount)`,
+    [profileId, categoryId, month, year, amount]
   );
-  return stmt.run(profileId, categoryId, month, year, amount);
 }
 
-export function updateBudget(id: number, amount: number) {
-  const stmt = db.prepare(
-    `UPDATE budgets SET amount = ? WHERE id = ?`
-  );
-  return stmt.run(amount, id);
+export async function updateBudget(id: number, amount: number) {
+  await pool.query("UPDATE budgets SET amount = ? WHERE id = ?", [amount, id]);
 }
 
-export function deleteBudget(id: number) {
-  const stmt = db.prepare(
-    `DELETE FROM budgets WHERE id = ?`
-  );
-  return stmt.run(id);
+export async function deleteBudget(id: number) {
+  await pool.query("DELETE FROM budgets WHERE id = ?", [id]);
 }
 
-export function getBudgetSummary(profileId: number, month: number, year: number) {
-  return db.prepare(
-    `SELECT c.id as category_id, c.name as category_name, c.emoji as category_emoji, c.type,
+export async function getBudgetSummary(profileId: number, month: number, year: number) {
+  const [rows] = await pool.query(
+    `SELECT c.id as category_id,
+            c.name as category_name,
+            c.emoji as category_emoji,
+            c.type,
             b.amount as budget_amount,
             COALESCE(SUM(t.amount), 0) as spent_amount
      FROM categories c
-     JOIN budgets b ON c.id = b.category_id AND b.profile_id = ? AND b.month = ? AND b.year = ?
-     LEFT JOIN transactions t ON c.id = t.category_id AND t.profile_id = ? AND 
-            strftime('%m', t.date) = ? AND strftime('%Y', t.date) = ? AND t.type = 'EXPENSE'
-     WHERE c.profile_id = ? AND c.type = 'EXPENSE'
+     JOIN budgets b
+       ON c.id = b.category_id
+      AND b.profile_id = ?
+      AND b.month = ?
+      AND b.year = ?
+     LEFT JOIN transactions t
+       ON c.id = t.category_id
+      AND t.profile_id = ?
+      AND MONTH(t.date) = ?
+      AND YEAR(t.date) = ?
+      AND t.type = 'EXPENSE'
+     WHERE c.profile_id = ?
+       AND c.type = 'EXPENSE'
      GROUP BY c.id, c.name, c.emoji, c.type, b.amount
-     ORDER BY c.name`
-  ).all(profileId, month, year, profileId, String(month).padStart(2, '0'), String(year), profileId);
+     ORDER BY c.name`,
+    [profileId, month, year, profileId, month, year, profileId]
+  );
+  return rows as any[];
 }

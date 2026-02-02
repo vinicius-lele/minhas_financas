@@ -1,4 +1,4 @@
-import { db } from "../database";
+import { pool } from "../database";
 
 export type Priority = "Baixa" | "Média" | "Alta" | "Urgente";
 
@@ -27,7 +27,10 @@ export interface GoalFilters {
   pageSize?: number;
 }
 
-export function listGoals(profileId: number, filters: GoalFilters = {}): { data: PurchaseGoal[]; total: number } {
+export async function listGoals(
+  profileId: number,
+  filters: GoalFilters = {}
+): Promise<{ data: PurchaseGoal[]; total: number }> {
   const where: string[] = ["profile_id = ?"];
   const params: any[] = [profileId];
   if (filters.q) {
@@ -53,108 +56,179 @@ export function listGoals(profileId: number, filters: GoalFilters = {}): { data:
   const pageSize = Number(filters.pageSize || 20);
   const offset = (page - 1) * pageSize;
 
-  const total = (db.prepare(`SELECT COUNT(*) as count FROM purchase_goals ${whereSql}`).get(...params) as { count: number }).count;
-  const data = db
-    .prepare(`SELECT * FROM purchase_goals ${whereSql} ORDER BY is_completed ASC, updated_at DESC LIMIT ? OFFSET ?`)
-    .all(...params, pageSize, offset) as PurchaseGoal[];
-  return { data, total };
-}
-
-export function createGoal(profileId: number, payload: Partial<PurchaseGoal>) {
-  const now = new Date().toISOString();
-  const stmt = db.prepare(`
-    INSERT INTO purchase_goals (profile_id, name, category, target_amount, current_amount_saved, priority, deadline, notes, is_completed, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
-  `);
-  const result = stmt.run(
-    profileId,
-    payload.name,
-    payload.category ?? null,
-    payload.target_amount,
-    payload.current_amount_saved ?? 0,
-    payload.priority ?? null,
-    payload.deadline ?? null,
-    payload.notes ?? null,
-    now,
-    now
+  const [countRows] = await pool.query(
+    `SELECT COUNT(*) as count FROM purchase_goals ${whereSql}`,
+    params
   );
-  return { id: Number(result.lastInsertRowid) };
+  const total = (countRows as any[])[0]?.count as number | undefined;
+
+  const [dataRows] = await pool.query(
+    `SELECT * FROM purchase_goals ${whereSql} ORDER BY is_completed ASC, updated_at DESC LIMIT ? OFFSET ?`,
+    [...params, pageSize, offset]
+  );
+  const data = dataRows as PurchaseGoal[];
+  return { data, total: total ?? 0 };
 }
 
-export function updateGoal(id: number, payload: Partial<PurchaseGoal>) {
-  const now = new Date().toISOString();
-  const current = db.prepare("SELECT * FROM purchase_goals WHERE id = ?").get(id) as PurchaseGoal | undefined;
+export async function createGoal(profileId: number, payload: Partial<PurchaseGoal>) {
+  const now = new Date();
+  const [result] = await pool.query(
+    `INSERT INTO purchase_goals (profile_id, name, category, target_amount, current_amount_saved, priority, deadline, notes, is_completed, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+    [
+      profileId,
+      payload.name,
+      payload.category ?? null,
+      payload.target_amount,
+      payload.current_amount_saved ?? 0,
+      payload.priority ?? null,
+      payload.deadline ?? null,
+      payload.notes ?? null,
+      now,
+      now,
+    ]
+  );
+  const res = result as any;
+  return { id: Number(res.insertId) };
+}
+
+export async function updateGoal(id: number, payload: Partial<PurchaseGoal>) {
+  const now = new Date();
+  const [rows] = await pool.query("SELECT * FROM purchase_goals WHERE id = ?", [id]);
+  const current = (rows as PurchaseGoal[])[0];
   if (!current) return 0;
-  const stmt = db.prepare(`
+
+  const updated = {
+    name: payload.name ?? current.name,
+    category: payload.category ?? current.category,
+    target_amount: payload.target_amount ?? current.target_amount,
+    current_amount_saved: payload.current_amount_saved ?? current.current_amount_saved,
+    priority: payload.priority ?? current.priority,
+    deadline: payload.deadline ?? current.deadline,
+    notes: payload.notes ?? current.notes,
+  };
+
+  const [result] = await pool.query(
+    `
     UPDATE purchase_goals SET
-      name = COALESCE(?, name),
-      category = COALESCE(?, category),
-      target_amount = COALESCE(?, target_amount),
-      current_amount_saved = COALESCE(?, current_amount_saved),
-      priority = COALESCE(?, priority),
-      deadline = COALESCE(?, deadline),
-      notes = COALESCE(?, notes),
+      name = ?,
+      category = ?,
+      target_amount = ?,
+      current_amount_saved = ?,
+      priority = ?,
+      deadline = ?,
+      notes = ?,
       updated_at = ?
     WHERE id = ?
-  `);
-  const res = stmt.run(
-    payload.name ?? null,
-    payload.category ?? null,
-    payload.target_amount ?? null,
-    payload.current_amount_saved ?? null,
-    payload.priority ?? null,
-    payload.deadline ?? null,
-    payload.notes ?? null,
-    now,
-    id
+  `,
+    [
+      updated.name,
+      updated.category,
+      updated.target_amount,
+      updated.current_amount_saved,
+      updated.priority,
+      updated.deadline,
+      updated.notes,
+      now,
+      id,
+    ]
   );
-  return res.changes;
+  const res = result as any;
+  return res.affectedRows as number;
 }
 
-export function deleteGoal(id: number) {
-  db.prepare("DELETE FROM savings_transactions WHERE goal_id = ?").run(id);
-  const res = db.prepare("DELETE FROM purchase_goals WHERE id = ?").run(id);
-  return res.changes;
+export async function deleteGoal(id: number) {
+  await pool.query("DELETE FROM savings_transactions WHERE goal_id = ?", [id]);
+  const [result] = await pool.query("DELETE FROM purchase_goals WHERE id = ?", [id]);
+  const res = result as any;
+  return res.affectedRows as number;
 }
 
-export function completeGoal(id: number) {
-  const now = new Date().toISOString();
-  const res = db.prepare("UPDATE purchase_goals SET is_completed = 1, completed_at = ?, updated_at = ? WHERE id = ?").run(now, now, id);
-  return res.changes;
+export async function completeGoal(id: number) {
+  const now = new Date();
+  const [result] = await pool.query(
+    "UPDATE purchase_goals SET is_completed = 1, completed_at = ?, updated_at = ? WHERE id = ?",
+    [now, now, id]
+  );
+  const res = result as any;
+  return res.affectedRows as number;
 }
 
-export function addSaving(goalId: number, amount: number, date: string, notes?: string) {
-  const now = new Date().toISOString();
-  const insert = db.prepare(`
+export async function addSaving(goalId: number, amount: number, date: string, notes?: string) {
+  const now = new Date();
+  const [insertResult] = await pool.query(
+    `
     INSERT INTO savings_transactions (goal_id, amount, date, notes, created_at)
     VALUES (?, ?, ?, ?, ?)
-  `).run(goalId, amount, date, notes ?? null, now);
-  db.prepare("UPDATE purchase_goals SET current_amount_saved = current_amount_saved + ?, updated_at = ? WHERE id = ?").run(amount, now, goalId);
-  return { id: Number(insert.lastInsertRowid) };
+  `,
+    [goalId, amount, date, notes ?? null, now]
+  );
+  await pool.query(
+    "UPDATE purchase_goals SET current_amount_saved = current_amount_saved + ?, updated_at = ? WHERE id = ?",
+    [amount, now, goalId]
+  );
+  const res = insertResult as any;
+  return { id: Number(res.insertId) };
 }
 
-export function listSavings(goalId: number) {
-  return db.prepare("SELECT * FROM savings_transactions WHERE goal_id = ? ORDER BY date DESC, id DESC").all(goalId);
+export async function listSavings(goalId: number) {
+  const [rows] = await pool.query(
+    "SELECT * FROM savings_transactions WHERE goal_id = ? ORDER BY date DESC, id DESC",
+    [goalId]
+  );
+  return rows as any[];
 }
 
-export function getGoalsSummary(profileId: number) {
-  const totals = db.prepare("SELECT COUNT(*) as total FROM purchase_goals WHERE profile_id = ?").get(profileId) as { total: number };
-  const completed = db.prepare("SELECT COUNT(*) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 1").get(profileId) as { total: number };
-  const active = db.prepare("SELECT COUNT(*) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 0").get(profileId) as { total: number };
-  const savedActive = db.prepare("SELECT COALESCE(SUM(current_amount_saved),0) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 0").get(profileId) as { total: number };
-  const remainingActive = db.prepare("SELECT COALESCE(SUM(target_amount - current_amount_saved),0) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 0").get(profileId) as { total: number };
-  const overdue = db.prepare(`
+export async function getGoalsSummary(profileId: number) {
+  const [totalsRows] = await pool.query(
+    "SELECT COUNT(*) as total FROM purchase_goals WHERE profile_id = ?",
+    [profileId]
+  );
+  const [completedRows] = await pool.query(
+    "SELECT COUNT(*) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 1",
+    [profileId]
+  );
+  const [activeRows] = await pool.query(
+    "SELECT COUNT(*) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 0",
+    [profileId]
+  );
+  const [savedRows] = await pool.query(
+    "SELECT COALESCE(SUM(current_amount_saved),0) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 0",
+    [profileId]
+  );
+  const [remainingRows] = await pool.query(
+    "SELECT COALESCE(SUM(target_amount - current_amount_saved),0) as total FROM purchase_goals WHERE profile_id = ? AND is_completed = 0",
+    [profileId]
+  );
+  const [overdueRows] = await pool.query(
+    `
     SELECT COUNT(*) as total FROM purchase_goals 
-    WHERE profile_id = ? AND is_completed = 0 AND deadline IS NOT NULL AND deadline < date('now')
-  `).get(profileId) as { total: number };
-  const percent = totals.total > 0 ? Math.round((completed.total / totals.total) * 100) : 0;
+    WHERE profile_id = ?
+      AND is_completed = 0
+      AND deadline IS NOT NULL
+      AND deadline < CURDATE()
+  `,
+    [profileId]
+  );
+
+  const totals = (totalsRows as any[])[0]?.total as number | undefined;
+  const completed = (completedRows as any[])[0]?.total as number | undefined;
+  const active = (activeRows as any[])[0]?.total as number | undefined;
+  const savedActive = (savedRows as any[])[0]?.total as number | undefined;
+  const remainingActive = (remainingRows as any[])[0]?.total as number | undefined;
+  const overdue = (overdueRows as any[])[0]?.total as number | undefined;
+
+  const totalGoals = totals ?? 0;
+  const completedCount = completed ?? 0;
+  const percent = totalGoals > 0 ? Math.round((completedCount / totalGoals) * 100) : 0;
+
   return {
-    totalGoals: totals.total,
-    completed: completed.total,
-    active: active.total,
-    overdue: overdue.total,
+    totalGoals,
+    completed: completedCount,
+    active: active ?? 0,
+    overdue: overdue ?? 0,
     percentCompleted: percent,
-    totalSavedActive: savedActive.total,
-    totalRemainingActive: remainingActive.total
+    totalSavedActive: savedActive ?? 0,
+    totalRemainingActive: remainingActive ?? 0,
   };
 }

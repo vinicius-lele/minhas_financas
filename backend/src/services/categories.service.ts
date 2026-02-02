@@ -1,4 +1,4 @@
-import { db } from "../database";
+import { pool } from "../database";
 
 export type CategoryType = "INCOME" | "EXPENSE";
 
@@ -9,29 +9,44 @@ export type Category = {
   type: CategoryType;
 };
 
-export function listCategories(profileId: number, type?: CategoryType): Category[] {
+export async function listCategories(profileId: number, type?: CategoryType): Promise<Category[]> {
   if (type) {
-    return db
-      .prepare("SELECT * FROM categories WHERE profile_id = ? AND type = ?")
-      .all(profileId, type) as Category[];
+    const [rows] = await pool.query(
+      "SELECT * FROM categories WHERE profile_id = ? AND type = ?",
+      [profileId, type]
+    );
+    return rows as Category[];
   }
-
-  return db.prepare("SELECT * FROM categories WHERE profile_id = ?").all(profileId) as Category[];
+  const [rows] = await pool.query(
+    "SELECT * FROM categories WHERE profile_id = ?",
+    [profileId]
+  );
+  return rows as Category[];
 }
 
-export function createCategory(profileId: number, name: string, emoji: string, type: CategoryType): Category {
-  const stmt = db.prepare("INSERT INTO categories (profile_id, name, emoji, type) VALUES (?, ?, ?, ?)");
-  const result = stmt.run(profileId, name, emoji, type);
-
-  return { id: Number(result.lastInsertRowid), name, emoji, type };
+export async function createCategory(profileId: number, name: string, emoji: string, type: CategoryType): Promise<Category> {
+  const [result] = await pool.query(
+    "INSERT INTO categories (profile_id, name, emoji, type) VALUES (?, ?, ?, ?)",
+    [profileId, name, emoji, type]
+  );
+  const res = result as any;
+  return { id: Number(res.insertId), name, emoji, type };
 }
 
-export function deleteCategory(id: number): number {
-  const result = db.prepare("DELETE FROM categories WHERE id = ?").run(id);
-  return result.changes;
+export async function deleteCategory(id: number): Promise<number> {
+  const [result] = await pool.query(
+    "DELETE FROM categories WHERE id = ?",
+    [id]
+  );
+  const res = result as any;
+  return res.affectedRows as number;
 }
 
-export function updateCategory(id: number, name: string, emoji: string, type: CategoryType): number {
-  const result = db.prepare("UPDATE categories SET name = ?, emoji = ?, type = ? WHERE id = ?").run(name, emoji, type, id);
-  return result.changes;
+export async function updateCategory(id: number, name: string, emoji: string, type: CategoryType): Promise<number> {
+  const [result] = await pool.query(
+    "UPDATE categories SET name = ?, emoji = ?, type = ? WHERE id = ?",
+    [name, emoji, type, id]
+  );
+  const res = result as any;
+  return res.affectedRows as number;
 }

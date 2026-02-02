@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { listTransactions, createTransaction, updateTransaction, deleteTransaction, TransactionType } from "../services/transactions.service";
-import { db } from "../database";
+import { pool } from "../database";
 
 export async function transactionsRoutes(app: FastifyInstance) {
   app.get("/", async (req: any, reply) => {
@@ -11,11 +11,11 @@ export async function transactionsRoutes(app: FastifyInstance) {
     if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
 
-    const owned = db
-      .prepare(
-        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
-      )
-      .get(userId, profileId) as { 1: number } | undefined;
+    const [rows] = await pool.query(
+      "SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?",
+      [userId, profileId]
+    );
+    const owned = Array.isArray(rows) && rows.length > 0;
     if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
     
     return listTransactions(profileId, start, end);
@@ -29,11 +29,11 @@ export async function transactionsRoutes(app: FastifyInstance) {
     if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
 
-    const owned = db
-      .prepare(
-        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
-      )
-      .get(userId, profileId) as { 1: number } | undefined;
+    const [rows] = await pool.query(
+      "SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?",
+      [userId, profileId]
+    );
+    const owned = Array.isArray(rows) && rows.length > 0;
     if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
     if (!body.categoryId) return reply.code(400).send({ error: "categoryId inválido" });
     if (!body.amount) return reply.code(400).send({ error: "Valor inválido" });
@@ -56,7 +56,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
   app.delete<{ Params: { id: string } }>("/:id", async (req, reply) => {
     const id = Number(req.params.id);
     if (!id) return reply.code(400).send({ error: "ID inválido" });
-    deleteTransaction(id);
+    await deleteTransaction(id);
     return reply.status(204).send();
   });
 }

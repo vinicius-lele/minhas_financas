@@ -1,8 +1,8 @@
-import { db } from "../database";
+import { pool } from "../database";
 
 export type TransactionType = "INCOME" | "EXPENSE";
 
-export function listTransactions(profileId: number, start?: string, end?: string) {
+export async function listTransactions(profileId: number, start?: string, end?: string) {
   let sql = "SELECT * FROM transactions WHERE profile_id = ?";
   const params: any[] = [profileId];
   if (start && end) {
@@ -10,21 +10,41 @@ export function listTransactions(profileId: number, start?: string, end?: string
     params.push(start, end);
   }
   sql += " ORDER BY date DESC";
-  return db.prepare(sql).all(...params);
+  const [rows] = await pool.query(sql, params);
+  return rows as any[];
 }
 
-export function createTransaction(profileId: number, categoryId: number, amount: number, type: TransactionType, date: string, description?: string) {
-  const stmt = db.prepare("INSERT INTO transactions (profile_id, category_id, amount, type, date, description) VALUES (?, ?, ?, ?, ?, ?)");
-  const result = stmt.run(profileId, categoryId, amount, type, date, description ?? null);
-  return { id: result.lastInsertRowid };
+export async function createTransaction(
+  profileId: number,
+  categoryId: number,
+  amount: number,
+  type: TransactionType,
+  date: string,
+  description?: string
+) {
+  const [result] = await pool.query(
+    "INSERT INTO transactions (profile_id, category_id, amount, type, date, description) VALUES (?, ?, ?, ?, ?, ?)",
+    [profileId, categoryId, amount, type, date, description ?? null]
+  );
+  const res = result as any;
+  return { id: Number(res.insertId) };
 }
 
-export function updateTransaction(id: number, categoryId: number, amount: number, type: TransactionType, date: string, description?: string) {
-  db.prepare("UPDATE transactions SET category_id = ?, amount = ?, type = ?, date = ?, description = ? WHERE id = ?")
-    .run(categoryId, amount, type, date, description ?? null, id);
+export async function updateTransaction(
+  id: number,
+  categoryId: number,
+  amount: number,
+  type: TransactionType,
+  date: string,
+  description?: string
+) {
+  await pool.query(
+    "UPDATE transactions SET category_id = ?, amount = ?, type = ?, date = ?, description = ? WHERE id = ?",
+    [categoryId, amount, type, date, description ?? null, id]
+  );
   return { ok: true };
 }
 
-export function deleteTransaction(id: number) {
-  db.prepare("DELETE FROM transactions WHERE id = ?").run(id);
+export async function deleteTransaction(id: number) {
+  await pool.query("DELETE FROM transactions WHERE id = ?", [id]);
 }

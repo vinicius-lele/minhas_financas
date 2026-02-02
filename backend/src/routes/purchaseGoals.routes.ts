@@ -1,15 +1,15 @@
 import { FastifyInstance } from "fastify";
-import { 
-  listGoals, 
-  createGoal, 
-  updateGoal, 
-  deleteGoal, 
-  completeGoal, 
-  addSaving, 
-  listSavings, 
-  getGoalsSummary 
+import {
+  listGoals,
+  createGoal,
+  updateGoal,
+  deleteGoal,
+  completeGoal,
+  addSaving,
+  listSavings,
+  getGoalsSummary,
 } from "../services/purchaseGoals.service";
-import { db } from "../database";
+import { pool } from "../database";
 
 export async function purchaseGoalsRoutes(app: FastifyInstance) {
   // List with filters and pagination
@@ -18,11 +18,11 @@ export async function purchaseGoalsRoutes(app: FastifyInstance) {
     const userId = (req as any).user?.id as number | undefined;
     if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
-    const owned = db
-      .prepare(
-        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
-      )
-      .get(userId, profileId) as { 1: number } | undefined;
+    const [rows] = await pool.query(
+      "SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?",
+      [userId, profileId]
+    );
+    const owned = Array.isArray(rows) && rows.length > 0;
     if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
     const { q, category, priority, status, page, pageSize } = req.query || {};
     return listGoals(profileId, { q, category, priority, status, page: Number(page), pageSize: Number(pageSize) });
@@ -34,18 +34,18 @@ export async function purchaseGoalsRoutes(app: FastifyInstance) {
     const userId = (req as any).user?.id as number | undefined;
     if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
-    const owned = db
-      .prepare(
-        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
-      )
-      .get(userId, profileId) as { 1: number } | undefined;
+    const [rows] = await pool.query(
+      "SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?",
+      [userId, profileId]
+    );
+    const owned = Array.isArray(rows) && rows.length > 0;
     if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
 
     const body = req.body as any;
     if (!body.name || typeof body.name !== "string") return reply.code(400).send({ error: "Nome inválido" });
     if (!body.target_amount || Number(body.target_amount) <= 0) return reply.code(400).send({ error: "Valor alvo inválido" });
 
-    const res = createGoal(profileId, {
+    const res = await createGoal(profileId, {
       name: body.name,
       category: body.category,
       target_amount: Number(body.target_amount),
@@ -61,7 +61,7 @@ export async function purchaseGoalsRoutes(app: FastifyInstance) {
   app.put<{ Params: { id: string } }>("/:id", async (req: any, reply) => {
     const id = Number(req.params.id);
     if (!id) return reply.code(400).send({ error: "ID inválido" });
-    const changes = updateGoal(id, req.body as any);
+    const changes = await updateGoal(id, req.body as any);
     if (changes === 0) return reply.code(404).send({ error: "Meta não encontrada" });
     return { ok: true };
   });
@@ -70,7 +70,7 @@ export async function purchaseGoalsRoutes(app: FastifyInstance) {
   app.delete<{ Params: { id: string } }>("/:id", async (req: any, reply) => {
     const id = Number(req.params.id);
     if (!id) return reply.code(400).send({ error: "ID inválido" });
-    const changes = deleteGoal(id);
+    const changes = await deleteGoal(id);
     if (changes === 0) return reply.code(404).send({ error: "Meta não encontrada" });
     return reply.status(204).send();
   });
@@ -79,7 +79,7 @@ export async function purchaseGoalsRoutes(app: FastifyInstance) {
   app.post<{ Params: { id: string } }>("/:id/complete", async (req: any, reply) => {
     const id = Number(req.params.id);
     if (!id) return reply.code(400).send({ error: "ID inválido" });
-    const changes = completeGoal(id);
+    const changes = await completeGoal(id);
     if (changes === 0) return reply.code(404).send({ error: "Meta não encontrada" });
     return { ok: true };
   });
@@ -91,7 +91,7 @@ export async function purchaseGoalsRoutes(app: FastifyInstance) {
     if (!id) return reply.code(400).send({ error: "ID inválido" });
     if (!amount || Number(amount) <= 0) return reply.code(400).send({ error: "Valor inválido" });
     if (!date) return reply.code(400).send({ error: "Data inválida" });
-    const res = addSaving(id, Number(amount), date, notes);
+    const res = await addSaving(id, Number(amount), date, notes);
     return res;
   });
 

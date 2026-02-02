@@ -1,3 +1,4 @@
+import "dotenv/config";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { authRoutes } from "./routes/auth.routes";
@@ -8,6 +9,7 @@ import { summaryRoutes } from "./routes/summary.routes";
 import { purchaseGoalsRoutes } from "./routes/purchaseGoals.routes";
 import { budgetsRoutes } from "./routes/budgets.routes";
 import { verifyAuthToken, isTokenRevoked } from "./services/auth.service";
+import { initDatabase } from "./database";
 
 const app = Fastify({
   bodyLimit: 1048576,
@@ -37,7 +39,7 @@ app.addHook("preHandler", async (req, reply) => {
   const token = authHeader.substring("Bearer ".length);
   try {
     const payload = verifyAuthToken(token);
-    if (isTokenRevoked(payload.jti)) {
+    if (await isTokenRevoked(payload.jti)) {
       return reply.code(401).send({ error: "Token revogado" });
     }
     (req as any).user = {
@@ -62,10 +64,15 @@ app.get("/", async () => {
   return { ok: true, message: "API Minhas Finanças rodando!" };
 });
 
-app.listen({ port: 3333 }, (err, address) => {
-  if (err) {
+async function start() {
+  try {
+    await initDatabase();
+    const address = await app.listen({ port: 3333 });
+    console.log(`API rodando em ${address}`);
+  } catch (err) {
     console.error(err);
     process.exit(1);
   }
-  console.log(`API rodando em ${address}`);
-});
+}
+
+start();

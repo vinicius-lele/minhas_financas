@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { listCategories, createCategory, deleteCategory, updateCategory, CategoryType } from "../services/categories.service";
-import { db } from "../database";
+import { pool } from "../database";
 
 export async function categoriesRoutes(app: FastifyInstance) {
   
@@ -13,11 +13,11 @@ export async function categoriesRoutes(app: FastifyInstance) {
     if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
 
-    const owned = db
-      .prepare(
-        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
-      )
-      .get(userId, profileId) as { 1: number } | undefined;
+    const [rows] = await pool.query(
+      "SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?",
+      [userId, profileId]
+    );
+    const owned = Array.isArray(rows) && rows.length > 0;
     if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
 
     return listCategories(profileId, type);
@@ -32,17 +32,17 @@ export async function categoriesRoutes(app: FastifyInstance) {
     if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
 
-    const owned = db
-      .prepare(
-        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
-      )
-      .get(userId, profileId) as { 1: number } | undefined;
+    const [rows] = await pool.query(
+      "SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?",
+      [userId, profileId]
+    );
+    const owned = Array.isArray(rows) && rows.length > 0;
     if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
     if (!name || name.length < 2) return reply.code(400).send({ error: "Nome inválido" });
     if (!emoji || emoji.length > 4) return reply.code(400).send({ error: "Emoji inválido" });
     if (type !== "INCOME" && type !== "EXPENSE") return reply.code(400).send({ error: "Tipo inválido" });
 
-    const category = createCategory(profileId, name, emoji, type);
+    const category = await createCategory(profileId, name, emoji, type);
     return category;
   });
 
@@ -56,7 +56,7 @@ export async function categoriesRoutes(app: FastifyInstance) {
     if (!emoji || emoji.length > 4) return reply.code(400).send({ error: "Emoji inválido" });
     if (type !== "INCOME" && type !== "EXPENSE") return reply.code(400).send({ error: "Tipo inválido" });
 
-    const updated = updateCategory(id, name, emoji, type);
+    const updated = await updateCategory(id, name, emoji, type);
     if (updated === 0) return reply.code(404).send({ error: "Categoria não encontrada" });
 
     return { id, name, emoji, type };
@@ -67,7 +67,7 @@ export async function categoriesRoutes(app: FastifyInstance) {
     const id = Number(req.params.id);
     if (!id || id <= 0) return reply.code(400).send({ error: "ID inválido" });
 
-    const deleted = deleteCategory(id);
+    const deleted = await deleteCategory(id);
     if (deleted === 0) return reply.code(404).send({ error: "Categoria não encontrada" });
 
     return { ok: true };

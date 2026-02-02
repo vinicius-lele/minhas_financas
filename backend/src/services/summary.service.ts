@@ -1,18 +1,32 @@
-import { db } from "../database";
+import { pool } from "../database";
 
-export function getSummary(profileId: number) {
-  const income = db.prepare(`SELECT COALESCE(SUM(amount),0) AS total FROM transactions WHERE profile_id=? AND type='INCOME'`).get(profileId) as { total: number };
-  const expense = db.prepare(`SELECT COALESCE(SUM(amount),0) AS total FROM transactions WHERE profile_id=? AND type='EXPENSE'`).get(profileId) as { total: number };
-  return { income: income.total, expense: expense.total, balance: income.total - expense.total };
+export async function getSummary(profileId: number) {
+  const [incomeRows] = await pool.query(
+    "SELECT COALESCE(SUM(amount),0) AS total FROM transactions WHERE profile_id = ? AND type = 'INCOME'",
+    [profileId]
+  );
+  const [expenseRows] = await pool.query(
+    "SELECT COALESCE(SUM(amount),0) AS total FROM transactions WHERE profile_id = ? AND type = 'EXPENSE'",
+    [profileId]
+  );
+  const income = (incomeRows as any[])[0]?.total as number | undefined;
+  const expense = (expenseRows as any[])[0]?.total as number | undefined;
+  const incomeTotal = income ?? 0;
+  const expenseTotal = expense ?? 0;
+  return { income: incomeTotal, expense: expenseTotal, balance: incomeTotal - expenseTotal };
 }
 
-export function getSummaryByCategory(profileId: number) {
-  return db.prepare(`
+export async function getSummaryByCategory(profileId: number) {
+  const [rows] = await pool.query(
+    `
     SELECT c.id, c.name, c.emoji, t.type, SUM(t.amount) AS total
     FROM transactions t
     JOIN categories c ON c.id = t.category_id
-    WHERE t.profile_id=?
+    WHERE t.profile_id = ?
     GROUP BY c.id, t.type
     ORDER BY total DESC
-  `).all(profileId);
+  `,
+    [profileId]
+  );
+  return rows as any[];
 }
