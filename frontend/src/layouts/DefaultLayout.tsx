@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Layout, Menu, Button, Drawer, theme } from "antd";
+import { Layout, Menu, Button, Drawer, theme, Dropdown, Space, Typography } from "antd";
 import {
   DashboardOutlined,
   SwapOutlined,
@@ -11,8 +11,10 @@ import {
   GiftOutlined,
 } from "@ant-design/icons";
 import { ProfileSelector } from "../components/ProfileSelector";
+import { useAuth } from "../contexts/AuthContext";
 
 const { Header, Sider, Content } = Layout;
+const { Text } = Typography;
 
 type MenuItem = { key: string; icon: React.ReactNode; label: string };
 
@@ -104,6 +106,8 @@ export function DefaultLayout() {
     setMobileOpen(false);
   };
 
+  const { user, logout } = useAuth();
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {/* Desktop Sidebar */}
@@ -178,6 +182,45 @@ export function DefaultLayout() {
 
           <div className="flex items-center gap-4">
             <ProfileSelector />
+            {user && (
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "user",
+                      label: (
+                        <div className="flex flex-col">
+                          <Text strong>{user.username}</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            {user.email}
+                          </Text>
+                        </div>
+                      ),
+                    },
+                    {
+                      type: "divider",
+                    },
+                    {
+                      key: "logout",
+                      label: "Sair",
+                      onClick: () => {
+                        logout().then(() => {
+                          window.location.href = "/login";
+                        });
+                      },
+                    },
+                  ],
+                }}
+                trigger={["click"]}
+              >
+                <Button type="text">
+                  <Space direction="horizontal">
+                    <UserOutlined />
+                    <Text>{user.username}</Text>
+                  </Space>
+                </Button>
+              </Dropdown>
+            )}
           </div>
         </Header>
 

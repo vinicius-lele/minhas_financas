@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
+import { AuthProvider } from "./contexts/AuthContext";
 import { ProfileProvider } from "./contexts/ProfileContext";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { ConfigProvider } from "antd";
@@ -40,12 +41,14 @@ function ThemeConfigProvider({ children }: { children: React.ReactNode }) {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ProfileProvider>
-      <ThemeProvider>
-        <ThemeConfigProvider>
-          <App />
-        </ThemeConfigProvider>
-      </ThemeProvider>
-    </ProfileProvider>
+    <AuthProvider>
+      <ProfileProvider>
+        <ThemeProvider>
+          <ThemeConfigProvider>
+            <App />
+          </ThemeConfigProvider>
+        </ThemeProvider>
+      </ProfileProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

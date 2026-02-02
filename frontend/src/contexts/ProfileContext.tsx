@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from "react";
 import { api } from "../services/api";
+import { useAuth } from "./AuthContext";
 import type { Profile } from "../types";
 
 interface ProfileContextType {
@@ -20,15 +21,24 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
 
   const refreshProfiles = useCallback(async () => {
+    if (!token) {
+      setProfiles([]);
+      setProfile(null);
+      localStorage.removeItem("selectedProfileId");
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await api<Profile[]>("/profiles");
       setProfiles(data);
-      
+
       const storedId = localStorage.getItem("selectedProfileId");
-      if (storedId && data.some(p => p.id === Number(storedId))) {
-        setProfile(data.find(p => p.id === Number(storedId)) || data[0]);
+      if (storedId && data.some((p) => p.id === Number(storedId))) {
+        setProfile(data.find((p) => p.id === Number(storedId)) || data[0]);
       } else if (data.length > 0) {
         setProfile(data[0]);
         localStorage.setItem("selectedProfileId", String(data[0].id));
@@ -41,7 +51,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     refreshProfiles();

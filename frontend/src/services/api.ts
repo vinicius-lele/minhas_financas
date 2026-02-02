@@ -41,8 +41,27 @@ export async function api<T = unknown>(url: string, options?: RequestInit): Prom
     }
   }
 
+  // Inject JWT token
+  const authToken = localStorage.getItem("authToken");
+  if (authToken) {
+    if (!opts.headers) opts.headers = {};
+    if (opts.headers instanceof Headers) {
+      opts.headers.set("Authorization", `Bearer ${authToken}`);
+    } else {
+      (opts.headers as Record<string, string>)["Authorization"] = `Bearer ${authToken}`;
+    }
+  }
+
   try {
     const res = await fetch(`http://localhost:3333${url}`, opts);
+
+    if (res.status === 401) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("authUser");
+      localStorage.removeItem("selectedProfileId");
+      window.location.href = "/login";
+      throw new Error("Não autenticado");
+    }
 
     if (!res.ok) {
       const text = await res.text();

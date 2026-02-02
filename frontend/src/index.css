@@ -84,6 +84,15 @@ body {
   color: var(--text-main) !important;
 }
 
+.ant-empty-description {
+  color: var(--text-muted) !important;
+}
+
+.ant-empty-image svg {
+  opacity: 0.9;
+  filter: brightness(1.2);
+}
+
 /* Ensure visible placeholders */
 input::placeholder,
 textarea::placeholder {
