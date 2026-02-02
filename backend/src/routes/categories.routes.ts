@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { listCategories, createCategory, deleteCategory, updateCategory, CategoryType } from "../services/categories.service";
+import { db } from "../database";
 
 export async function categoriesRoutes(app: FastifyInstance) {
   
@@ -7,8 +8,17 @@ export async function categoriesRoutes(app: FastifyInstance) {
   app.get("/", async (req: FastifyRequest<{ Querystring: { type?: CategoryType } }>, reply) => {
     const { type } = req.query;
     const profileId = Number(req.headers["x-profile-id"]);
+    const userId = (req as any).user?.id as number | undefined;
     
+    if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
+
+    const owned = db
+      .prepare(
+        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
+      )
+      .get(userId, profileId) as { 1: number } | undefined;
+    if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
 
     return listCategories(profileId, type);
   });
@@ -17,8 +27,17 @@ export async function categoriesRoutes(app: FastifyInstance) {
   app.post("/", async (req: FastifyRequest<{ Body: { name: string; emoji: string; type: CategoryType } }>, reply: FastifyReply) => {
     const { name, emoji, type } = req.body;
     const profileId = Number(req.headers["x-profile-id"]);
+    const userId = (req as any).user?.id as number | undefined;
 
+    if (!userId) return reply.code(401).send({ error: "Usuário não autenticado" });
     if (!profileId) return reply.code(400).send({ error: "Header x-profile-id é obrigatório" });
+
+    const owned = db
+      .prepare(
+        `SELECT 1 FROM user_profiles WHERE user_id = ? AND profile_id = ?`
+      )
+      .get(userId, profileId) as { 1: number } | undefined;
+    if (!owned) return reply.code(403).send({ error: "Perfil não pertence ao usuário" });
     if (!name || name.length < 2) return reply.code(400).send({ error: "Nome inválido" });
     if (!emoji || emoji.length > 4) return reply.code(400).send({ error: "Emoji inválido" });
     if (type !== "INCOME" && type !== "EXPENSE") return reply.code(400).send({ error: "Tipo inválido" });
