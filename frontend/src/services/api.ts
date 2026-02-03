@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
 export async function api<T = unknown>(url: string, options?: RequestInit): Promise<T> {
   const opts = { ...options };
 
@@ -53,7 +55,7 @@ export async function api<T = unknown>(url: string, options?: RequestInit): Prom
   }
 
   try {
-    const res = await fetch(`http://localhost:3333${url}`, opts);
+    const res = await fetch(`${API_BASE_URL}${url}`, opts);
 
     if (res.status === 401) {
       localStorage.removeItem("authToken");
@@ -61,7 +63,7 @@ export async function api<T = unknown>(url: string, options?: RequestInit): Prom
       localStorage.removeItem("selectedProfileId");
 
       const isAuthPath =
-        url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register");
+        url.startsWith("/auth/login") || url.startsWith("/auth/register");
 
       if (!isAuthPath) {
         window.location.href = "/";
@@ -88,6 +90,12 @@ export async function api<T = unknown>(url: string, options?: RequestInit): Prom
     return res.json().catch(() => ({}));
   } catch (error) {
     console.error("API Error:", error);
-    throw error;
+    if (error instanceof TypeError && String(error.message).includes("Failed to fetch")) {
+      throw new Error("Não foi possível conectar ao servidor. Verifique se a API está rodando.");
+    }
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("Erro de rede ao chamar a API");
   }
 }

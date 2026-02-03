@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (identifier: string, password: string) => {
-    const res = await api<{ token: string; user: AuthUser }>("/api/auth/login", {
+    const res = await api<{ token: string; user: AuthUser }>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ identifier, password }),
     });
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (username: string, email: string, password: string, confirmPassword: string) => {
-    const res = await api<{ token: string; user: AuthUser }>("/api/auth/register", {
+    const res = await api<{ token: string; user: AuthUser }>("/auth/register", {
       method: "POST",
       body: JSON.stringify({ username, email, password, confirmPassword }),
     });
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       if (token) {
-        await api("/api/auth/logout", {
+        await api("/auth/logout", {
           method: "POST",
         });
       }

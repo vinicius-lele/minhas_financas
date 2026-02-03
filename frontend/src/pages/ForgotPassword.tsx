@@ -12,7 +12,7 @@ type ForgotFormValues = {
 export function ForgotPassword() {
   const handleFinish = async (values: ForgotFormValues) => {
     try {
-      const res = await api<{ ok: boolean; resetToken?: string }>("/api/auth/forgot-password", {
+      const res = await api<{ ok: boolean; resetToken?: string }>("/auth/forgot-password", {
         method: "POST",
         body: JSON.stringify({ email: values.email }),
       });
