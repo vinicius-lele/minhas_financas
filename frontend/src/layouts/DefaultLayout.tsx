@@ -9,6 +9,7 @@ import {
   MenuOutlined,
   WalletOutlined,
   GiftOutlined,
+  LineChartOutlined,
 } from "@ant-design/icons";
 import { ProfileSelector } from "../components/ProfileSelector";
 import { useAuth } from "../contexts/AuthContext";
@@ -88,6 +89,11 @@ export function DefaultLayout() {
       key: "/budgets",
       icon: <WalletOutlined />,
       label: "Orçamentos",
+    },
+    {
+      key: "/investments",
+      icon: <LineChartOutlined />,
+      label: "Investimentos",
     },
     {
       key: "/purchase-goals",

@@ -17,7 +17,12 @@ import {
 } from "recharts";
 import { useProfile } from "../contexts/ProfileContext";
 import { useTheme } from "../contexts/ThemeContext";
-import type { TransactionType, GoalSummary, BudgetSummary } from "../types";
+import type {
+  TransactionType,
+  GoalSummary,
+  BudgetSummary,
+  InvestmentsSummary,
+} from "../types";
 import { Card, Col, Row, Statistic, Typography, Spin, Empty, Progress, Radio, Tabs } from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined, DollarOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
@@ -67,6 +72,7 @@ export function Dashboard() {
   const [monthlyData, setMonthlyData] = useState<MonthlyPoint[]>([]);
   const [annualData, setAnnualData] = useState<AnnualPoint[]>([]);
   const [monthlyRange, setMonthlyRange] = useState<MonthlyRange>("year");
+  const [investmentsSummary, setInvestmentsSummary] = useState<InvestmentsSummary | null>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -107,6 +113,14 @@ export function Dashboard() {
         });
         setMonthlyData(combinedMonthly);
         setAnnualData(annual);
+
+        try {
+          const invSummary = await api<InvestmentsSummary>("/investments/summary");
+          setInvestmentsSummary(invSummary);
+        } catch (err) {
+          console.error("Erro ao carregar resumo de investimentos", err);
+          setInvestmentsSummary(null);
+        }
 
         const incomePaletteBase = [
           theme.token.colorPrimary,
@@ -474,6 +488,66 @@ export function Dashboard() {
           </motion.div>
         </Col>
       </Row>
+
+      {investmentsSummary && (
+        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+          <Col xs={24}>
+            <Card bordered={false} className="shadow-sm hover:shadow-md transition-shadow">
+              <Row gutter={[16, 16]}>
+                <Col xs={24} md={8}>
+                  <div className="bg-surface rounded-lg p-3 h-full flex flex-col justify-between">
+                    <Text type="secondary" className="text-xs">
+                      Total investido
+                    </Text>
+                    <div className="text-2xl font-bold mt-1">
+                      {formatCurrency(investmentsSummary.overview.totalInvested)}
+                    </div>
+                    <Text type="secondary" className="text-xs mt-2">
+                      {investmentsSummary.overview.count}{" "}
+                      {investmentsSummary.overview.count === 1
+                        ? "investimento"
+                        : "investimentos"}
+                    </Text>
+                  </div>
+                </Col>
+                <Col xs={24} md={8}>
+                  <div className="bg-surface rounded-lg p-3 h-full flex flex-col justify-between">
+                    <Text type="secondary" className="text-xs">
+                      Valor atual da carteira
+                    </Text>
+                    <div className="text-2xl font-bold mt-1">
+                      {formatCurrency(investmentsSummary.overview.totalCurrent)}
+                    </div>
+                    <Text type="secondary" className="text-xs mt-2">
+                      Diferença total:{" "}
+                      {formatCurrency(investmentsSummary.overview.totalProfit)}
+                    </Text>
+                  </div>
+                </Col>
+                <Col xs={24} md={8}>
+                  <div className="bg-surface rounded-lg p-3 h-full flex flex-col justify-between">
+                    <Text type="secondary" className="text-xs">
+                      Rentabilidade acumulada
+                    </Text>
+                    <div
+                      className={
+                        investmentsSummary.overview.totalProfit >= 0
+                          ? "text-2xl font-bold mt-1 text-green-600"
+                          : "text-2xl font-bold mt-1 text-red-600"
+                      }
+                    >
+                      {investmentsSummary.overview.totalProfitPercent.toFixed(1)}%
+                    </div>
+                    <Text type="secondary" className="text-xs mt-2">
+                      Baseado em valor aplicado x valor atual
+                    </Text>
+                  </div>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+      )}
 
       {goals && (
         <Row gutter={[16, 16]} style={{ marginTop: 24 }}>

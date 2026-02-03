@@ -79,3 +79,35 @@ export interface BudgetSummary {
   budget_amount: number;
   spent_amount: number;
 }
+
+export interface Investment {
+  id: number;
+  profile_id: number;
+  name: string;
+  category?: string | null;
+  broker?: string | null;
+  invested_amount: number;
+  current_value: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InvestmentOverview {
+  totalInvested: number;
+  totalCurrent: number;
+  totalProfit: number;
+  totalProfitPercent: number;
+  count: number;
+}
+
+export interface InvestmentCategorySummary {
+  category: string | null;
+  totalInvested: number;
+  totalCurrent: number;
+  profit: number;
+}
+
+export interface InvestmentsSummary {
+  overview: InvestmentOverview;
+  categories: InvestmentCategorySummary[];
+}

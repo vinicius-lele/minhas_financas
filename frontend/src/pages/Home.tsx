@@ -67,6 +67,15 @@ export function Home() {
       gradient: "linear-gradient(to right, #facc15, #fb923c, #f97316)",
     },
     {
+      key: "investments",
+      title: "Investimentos",
+      description:
+        "Registre aplicações, acompanhe o valor atual da carteira e a rentabilidade acumulada.",
+      badge: "Patrimônio",
+      image: "/home/investimento.png",
+      gradient: "linear-gradient(to right, #7c2d12, #ea580c, #f97316)",
+    },
+    {
       key: "profiles",
       title: "Perfis separados",
       description:

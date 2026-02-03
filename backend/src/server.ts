@@ -8,6 +8,7 @@ import { transactionsRoutes } from "./routes/transactions.routes";
 import { summaryRoutes } from "./routes/summary.routes";
 import { purchaseGoalsRoutes } from "./routes/purchaseGoals.routes";
 import { budgetsRoutes } from "./routes/budgets.routes";
+import { investmentsRoutes } from "./routes/investments.routes";
 import { verifyAuthToken, isTokenRevoked } from "./services/auth.service";
 import { initDatabase } from "./database";
 
@@ -59,6 +60,7 @@ app.register(transactionsRoutes, { prefix: "/transactions" });
 app.register(summaryRoutes, { prefix: "/summary" });
 app.register(purchaseGoalsRoutes, { prefix: "/purchase-goals" });
 app.register(budgetsRoutes, { prefix: "/budgets" });
+app.register(investmentsRoutes, { prefix: "/investments" });
 
 app.get("/", async () => {
   return { ok: true, message: "API Minhas Finanças rodando!" };

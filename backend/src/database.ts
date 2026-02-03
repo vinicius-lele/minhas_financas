@@ -109,6 +109,21 @@ export async function initDatabase() {
     `);
 
     await conn.query(`
+      CREATE TABLE IF NOT EXISTS investments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        profile_id INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        category VARCHAR(120) NULL,
+        broker VARCHAR(120) NULL,
+        invested_amount DECIMAL(12,2) NOT NULL,
+        current_value DECIMAL(12,2) NOT NULL,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+        CONSTRAINT fk_investments_profile FOREIGN KEY (profile_id) REFERENCES profiles(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+
+    await conn.query(`
       CREATE TABLE IF NOT EXISTS purchase_goals (
         id INT AUTO_INCREMENT PRIMARY KEY,
         profile_id INT NOT NULL,
